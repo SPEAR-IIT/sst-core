@@ -60,6 +60,10 @@ public:
         bool   head;          /*!< True if this is the head of a stream */
         bool   tail;          /*!< True if this is the tail of a steram */
         bool   allow_adaptive; /*!< Indicates whether adaptive routing is allowed or not. */
+
+        //yao
+        int    num_hops;       /* number of hops message go through */
+        bool   adp_routed;     /* this msg is routed adaptively ? */
         
     private:
         Event* payload;       /*!< Payload of the request */
@@ -108,15 +112,26 @@ public:
 
 
         /** Constructor */
+        // Request() :
+        //     dest(0), src(0), size_in_bits(0), head(false), tail(false), allow_adaptive(true),
+        //     payload(nullptr), trace(NONE), traceID(0)
+        // {}
+
+        //yao
         Request() :
             dest(0), src(0), size_in_bits(0), head(false), tail(false), allow_adaptive(true),
-            payload(nullptr), trace(NONE), traceID(0)
+            payload(nullptr), trace(NONE), traceID(0), num_hops(0), adp_routed(false)
         {}
+
 
         Request(nid_t dest, nid_t src, size_t size_in_bits,
                 bool head, bool tail, Event* payload = nullptr) :
             dest(dest), src(src), size_in_bits(size_in_bits), head(head), tail(tail), allow_adaptive(true),
-            payload(payload), trace(NONE), traceID(0)
+            payload(payload), trace(NONE), traceID(0),
+
+            //yao
+            num_hops(0), adp_routed(false)
+
         {
         }
 
@@ -149,6 +164,10 @@ public:
             ser & trace;
             ser & traceID;
             ser & allow_adaptive;
+
+            //yao
+            ser & num_hops;
+            ser & adp_routed;
         }
         
     protected:
