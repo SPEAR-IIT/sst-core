@@ -64,6 +64,7 @@ public:
         //yao
         int    num_hops;       /* number of hops message go through */
         bool   adp_routed;     /* this msg is routed adaptively ? */
+        int    special_index;   /* intend to use this as a index to show when to save q-table to a file. Only used by dragonfly topology, trafficGen EP for now*/
         
     private:
         Event* payload;       /*!< Payload of the request */
@@ -130,7 +131,7 @@ public:
             payload(payload), trace(NONE), traceID(0),
 
             //yao
-            num_hops(0), adp_routed(false)
+            num_hops(0), adp_routed(false), special_index(0)
 
         {
         }
@@ -168,6 +169,7 @@ public:
             //yao
             ser & num_hops;
             ser & adp_routed;
+            ser & special_index;
         }
         
     protected:
