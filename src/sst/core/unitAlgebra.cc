@@ -1,10 +1,10 @@
-// Copyright 2009-2019 NTESS. Under the terms
+// Copyright 2009-2020 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
-// 
-// Copyright (c) 2009-2019, NTESS
+//
+// Copyright (c) 2009-2020, NTESS
 // All rights reserved.
-// 
+//
 // This file is part of the SST software package. For license
 // information, see the LICENSE file in the top level directory of the
 // distribution.
@@ -29,7 +29,7 @@ static void split(const std::string& input, const std::string& delims, vector<st
     size_t start = 0;
     size_t stop = 0;;
     vector<string> ret;
-    
+
     do {
         stop = input.find_first_of(delims,start);
         tokens.push_back(input.substr(start,stop-start));
@@ -80,7 +80,7 @@ Units::initialize()
     registerBaseUnit("B");
     registerBaseUnit("b");
     registerBaseUnit("events");
-    
+
     registerCompoundUnit("Hz","1/s");
     // Yes, I know it's wrong, but other people don't always realize
     // that.
@@ -98,7 +98,7 @@ Units::reduce()
     // Sort both vectors
     sort(numerator.begin(),numerator.end());
     sort(denominator.begin(),denominator.end());
-    
+
     vector<unit_id_t>::iterator n, d;
     n = numerator.begin();
     d = denominator.begin();
@@ -151,7 +151,7 @@ Units::addUnit(const std::string& units, sst_big_num& multiplier, bool invert)
             break;
         }
     }
-    
+
     if ( si_length > 0 ) {
         string si_unit = units.substr(0,si_length);
         multiplier *= si_unit_map[si_unit];
@@ -184,9 +184,9 @@ Units::addUnit(const std::string& units, sst_big_num& multiplier, bool invert)
         return;
     }
     else {
-        Output abort = Simulation::getSimulation()->getSimulationOutput();
+        Output abort = Output::getDefaultObject();
         abort.fatal(CALL_INFO,1,"Invalid unit type: %s\n",type.c_str());
-    }        
+    }
 }
 
 void
@@ -212,11 +212,11 @@ Units::registerCompoundUnit(const std::string& u, const std::string& v)
 }
 
 Units::Units(const std::string& units, sst_big_num& multiplier)
-{   
+{
     // Get the numerator and the denominator
     string s_numerator;
     string s_denominator;
-    
+
     size_t slash_index = units.find_first_of('/');
 
     s_numerator = units.substr(0,slash_index);
@@ -255,7 +255,7 @@ Units::operator*= (const Units& v) {
 
     // Simply combine the two numerators and denominators, then reduce.
     numerator.insert(numerator.end(),v.numerator.begin(),v.numerator.end());
-    denominator.insert(denominator.end(),v.denominator.begin(),v.denominator.end()); 
+    denominator.insert(denominator.end(),v.denominator.begin(),v.denominator.end());
     reduce();
     return *this;
 }
@@ -263,7 +263,7 @@ Units::operator*= (const Units& v) {
 Units&
 Units::operator/= (const Units& v)
 {
-    numerator.insert(numerator.end(),v.denominator.begin(),v.denominator.end()); 
+    numerator.insert(numerator.end(),v.denominator.begin(),v.denominator.end());
     denominator.insert(denominator.end(),v.numerator.begin(),v.numerator.end());
     reduce();
     return *this;
@@ -297,12 +297,12 @@ Units::toString() const
 {
     std::lock_guard<std::recursive_mutex> lock(unit_lock);
     if ( numerator.size() == 0 && denominator.size() == 0 ) return "";
-    
+
     // Special case Hz
     if ( valid_compound_units["Hz"].first == *this ) return "Hz";
-    
+
     std::string ret;
-    
+
     if ( numerator.size() == 0 ) ret.append("1");
     else {
         ret.append(unit_strings[numerator[0]]);
@@ -311,7 +311,7 @@ Units::toString() const
             ret.append(unit_strings[numerator[i]]);
         }
     }
-    
+
     if ( denominator.size() != 0 ) {
         ret.append("/");
         ret.append(unit_strings[denominator[0]]);
@@ -320,7 +320,7 @@ Units::toString() const
             ret.append(unit_strings[denominator[i]]);
         }
     }
-    
+
     return ret;
 }
 
@@ -332,11 +332,11 @@ UnitAlgebra::trim(const std::string& str)
     // Find whitespace in front
     int front_index = 0;
     while ( isspace(str[front_index]) ) front_index++;
-    
+
     // Find whitespace in back
     int back_index = str.length() - 1;
     while ( isspace(str[back_index]) ) back_index--;
-    
+
     return str.substr(front_index,back_index-front_index+1);
 }
 
@@ -366,13 +366,13 @@ UnitAlgebra::init(const std::string& val)
         value = sst_big_num(number);
     }
     catch (runtime_error e) {
-        Output abort = Simulation::getSimulation()->getSimulationOutput();
+        Output abort = Output::getDefaultObject();
         abort.fatal(CALL_INFO,1,"Error: invalid number string: %s\n",number.c_str());
     }
-    
+
     value *= multiplier;
 }
-    
+
 
 UnitAlgebra::UnitAlgebra(const std::string& val)
 {
@@ -449,7 +449,7 @@ UnitAlgebra&
 UnitAlgebra::operator+= (const UnitAlgebra& v)
 {
     if ( unit != v.unit ) {
-        Output abort = Simulation::getSimulation()->getSimulationOutput();
+        Output abort = Output::getDefaultObject();
         abort.fatal(CALL_INFO,1,"Error: Attempting to add UnitAlgebra values "
                     "with non-matching units: %s, %s\n",
                     toString().c_str(), v.toString().c_str());
@@ -462,7 +462,7 @@ UnitAlgebra&
 UnitAlgebra::operator-= (const UnitAlgebra& v)
 {
     if ( unit != v.unit ) {
-        Output abort = Simulation::getSimulation()->getSimulationOutput();
+        Output abort = Output::getDefaultObject();
         abort.fatal(CALL_INFO,1,"Error: Attempting to subtract UnitAlgebra values "
                     "with non-matching units: %s, %s\n",
                     toString().c_str(), v.toString().c_str());
@@ -475,7 +475,7 @@ bool
 UnitAlgebra::operator> (const UnitAlgebra& v) const
 {
     if ( unit != v.unit ) {
-        Output abort = Simulation::getSimulation()->getSimulationOutput();
+        Output abort = Output::getDefaultObject();
         abort.fatal(CALL_INFO,1,"Error: Attempting to compare UnitAlgebra values "
                     "with non-matching units: %s, %s\n",
                     toString().c_str(), v.toString().c_str());
@@ -487,7 +487,7 @@ bool
 UnitAlgebra::operator>= (const UnitAlgebra& v) const
 {
     if ( unit != v.unit ) {
-        Output abort = Simulation::getSimulation()->getSimulationOutput();
+        Output abort = Output::getDefaultObject();
         abort.fatal(CALL_INFO,1,"Error: Attempting to compare UnitAlgebra values "
                     "with non-matching units: %s, %s\n",
                     toString().c_str(), v.toString().c_str());
@@ -499,7 +499,7 @@ bool
 UnitAlgebra::operator< (const UnitAlgebra& v) const
 {
     if ( unit != v.unit ) {
-        Output abort = Simulation::getSimulation()->getSimulationOutput();
+        Output abort = Output::getDefaultObject();
         abort.fatal(CALL_INFO,1,"Error: Attempting to compare UnitAlgebra values "
                     "with non-matching units: %s, %s\n",
                     toString().c_str(), v.toString().c_str());
@@ -511,12 +511,26 @@ bool
 UnitAlgebra::operator<= (const UnitAlgebra& v) const
 {
     if ( unit != v.unit ) {
-        Output abort = Simulation::getSimulation()->getSimulationOutput();
+        Output abort = Output::getDefaultObject();
         abort.fatal(CALL_INFO,1,"Error: Attempting to compare UnitAlgebra values "
                     "with non-matching units: %s, %s\n",
                     toString().c_str(), v.toString().c_str());
     }
     return value <= v.value;
+}
+
+bool
+UnitAlgebra::operator== (const UnitAlgebra& v) const
+{
+    if ( unit != v.unit ) return false;
+    return value == v.value;
+}
+
+bool
+UnitAlgebra::operator!= (const UnitAlgebra& v) const
+{
+    if ( unit != v.unit ) return false;
+    return value != v.value;
 }
 
 
@@ -548,8 +562,20 @@ UnitAlgebra::getRoundedValue() const
     // int64_t ret;
 
     // ss << round(value);
-    // ss >> ret;    
+    // ss >> ret;
     // return ret;
     // return llround(value);
     return value.toLong();
+}
+
+double
+UnitAlgebra::getDoubleValue() const
+{
+    return value.toDouble();
+}
+
+bool
+UnitAlgebra::isValueZero() const
+{
+    return value.isZero();
 }

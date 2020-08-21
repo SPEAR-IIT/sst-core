@@ -1,10 +1,10 @@
 // -*- c++ -*-
 
-// Copyright 2009-2019 NTESS. Under the terms
+// Copyright 2009-2020 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2019, NTESS
+// Copyright (c) 2009-2020, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
@@ -17,12 +17,13 @@
 DISABLE_WARN_DEPRECATED_REGISTER
 #include <Python.h>
 REENABLE_WARNING
+#include <sst/core/model/python/pymacros.h>
 
 #include <string.h>
 
-#include "sst/core/model/python2/pymodel.h"
-#include "sst/core/model/python2/pymodel_comp.h"
-#include "sst/core/model/python2/pymodel_statgroup.h"
+#include "sst/core/model/python/pymodel.h"
+#include "sst/core/model/python/pymodel_comp.h"
+#include "sst/core/model/python/pymodel_statgroup.h"
 
 #include "sst/core/sst_types.h"
 #include "sst/core/simulation.h"
@@ -64,7 +65,7 @@ static int sgInit(StatGroupPy_t *self, PyObject *args, PyObject *UNUSED(kwds))
 
 static void sgDealloc(StatGroupPy_t *self)
 {
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject* sgAddStat(PyObject *self, PyObject *args)
@@ -92,7 +93,7 @@ static PyObject* sgAddStat(PyObject *self, PyObject *args)
         PyErr_SetString(PyExc_RuntimeError, reason.c_str());
         return nullptr;
     }
-    return PyLong_FromLong(0);
+    return SST_ConvertToPythonLong(0);
 }
 
 
@@ -116,7 +117,7 @@ static PyObject* sgAddComp(PyObject *self, PyObject *args)
         PyErr_SetString(PyExc_RuntimeError, reason.c_str());
         return nullptr;
     }
-    return PyLong_FromLong(0);
+    return SST_ConvertToPythonLong(0);
 }
 
 
@@ -134,21 +135,21 @@ static PyObject* sgSetOutput(PyObject *self, PyObject *args)
         return nullptr;
     }
 
-    return PyLong_FromLong(0);
+    return SST_ConvertToPythonLong(0);
 }
 
 
 static PyObject* sgSetFreq(PyObject *self, PyObject *args)
 {
-    if ( !PyString_Check(args) ) {
+    if ( !PyUnicode_Check(args) ) {
         return nullptr;
     }
-    if ( !((StatGroupPy_t*)self)->ptr->setFrequency(PyString_AsString(args)) ) {
+    if ( !((StatGroupPy_t*)self)->ptr->setFrequency(SST_ConvertToCppString(args)) ) {
         PyErr_SetString(PyExc_RuntimeError, "Invalid frequency");
         return nullptr;
     }
 
-    return PyLong_FromLong(0);
+    return SST_ConvertToPythonLong(0);
 }
 
 
@@ -167,16 +168,23 @@ static PyMethodDef sgMethods[] = {
 };
 
 
+#if PY_MAJOR_VERSION == 3
+#if PY_MINOR_VERSION == 8
+DISABLE_WARN_DEPRECATED_DECLARATION
+#endif
+#endif
 PyTypeObject PyModel_StatGroupType = {
-    PyVarObject_HEAD_INIT(nullptr, 0)
+    SST_PY_OBJ_HEAD
     "sst.StatisticGroup",      /* tp_name */
     sizeof(StatGroupPy_t),     /* tp_basicsize */
     0,                         /* tp_itemsize */
     (destructor)sgDealloc,     /* tp_dealloc */
-    nullptr,                   /* tp_print */
+    SST_TP_VECTORCALL_OFFSET       /* Python3 only */
+    SST_TP_PRINT                   /* Python2 only */
     nullptr,                   /* tp_getattr */
     nullptr,                   /* tp_setattr */
-    nullptr,                   /* tp_compare */
+    SST_TP_COMPARE(nullptr)        /* Python2 only */
+    SST_TP_AS_SYNC                 /* Python3 only */
     nullptr,                   /* tp_repr */
     nullptr,                   /* tp_as_number */
     nullptr,                   /* tp_as_sequence */
@@ -191,7 +199,7 @@ PyTypeObject PyModel_StatGroupType = {
     "SST Statistic Group",     /* tp_doc */
     nullptr,                   /* tp_traverse */
     nullptr,                   /* tp_clear */
-    nullptr,                   /* tp_richcompare */
+    SST_TP_RICH_COMPARE(nullptr)   /* tp_richcompare */
     0,                         /* tp_weaklistoffset */
     nullptr,                   /* tp_iter */
     nullptr,                   /* tp_iternext */
@@ -215,7 +223,15 @@ PyTypeObject PyModel_StatGroupType = {
     nullptr,                   /* tp_weaklist */
     nullptr,                   /* tp_del */
     0,                         /* tp_version_tag */
+    SST_TP_FINALIZE            /* Python3 only */
+    SST_TP_VECTORCALL          /* Python3 only */
+    SST_TP_PRINT_DEP               /* Python3.8 only */
 };
+#if PY_MAJOR_VERSION == 3
+#if PY_MINOR_VERSION == 8
+REENABLE_WARNING
+#endif
+#endif
 
 
 
@@ -243,7 +259,7 @@ static int soInit(StatOutputPy_t *self, PyObject *args, PyObject *UNUSED(kwds))
 
 static void soDealloc(StatOutputPy_t *self)
 {
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject* soAddParam(PyObject *self, PyObject *args)
@@ -257,10 +273,10 @@ static PyObject* soAddParam(PyObject *self, PyObject *args)
     if ( nullptr == so ) return nullptr;
 
     PyObject *vstr = PyObject_CallMethod(value, (char*)"__str__", nullptr);
-    so->addParameter(param, PyString_AsString(vstr));
+    so->addParameter(param, SST_ConvertToCppString(vstr));
     Py_XDECREF(vstr);
 
-    return PyInt_FromLong(0);
+    return SST_ConvertToPythonLong(0);
 }
 
 
@@ -280,12 +296,12 @@ static PyObject* soAddParams(PyObject *self, PyObject *args)
     while ( PyDict_Next(args, &pos, &key, &val) ) {
         PyObject *kstr = PyObject_CallMethod(key, (char*)"__str__", nullptr);
         PyObject *vstr = PyObject_CallMethod(val, (char*)"__str__", nullptr);
-        so->addParameter(PyString_AsString(kstr), PyString_AsString(vstr));
+        so->addParameter(SST_ConvertToCppString(kstr), SST_ConvertToCppString(vstr));
         Py_XDECREF(kstr);
         Py_XDECREF(vstr);
         count++;
     }
-    return PyInt_FromLong(count);
+    return SST_ConvertToPythonLong(count);
 }
 
 
@@ -301,16 +317,23 @@ static PyMethodDef soMethods[] = {
 };
 
 
+#if PY_MAJOR_VERSION == 3
+#if PY_MINOR_VERSION == 8
+DISABLE_WARN_DEPRECATED_DECLARATION
+#endif
+#endif
 PyTypeObject PyModel_StatOutputType = {
-    PyVarObject_HEAD_INIT(nullptr, 0)
+    SST_PY_OBJ_HEAD
     "sst.StatisticOutput",       /* tp_name */
     sizeof(StatOutputPy_t),      /* tp_basicsize */
     0,                           /* tp_itemsize */
     (destructor)soDealloc,       /* tp_dealloc */
-    nullptr,                     /* tp_print */
+    SST_TP_VECTORCALL_OFFSET       /* Python3 only */
+    SST_TP_PRINT                  /* Python2 only */
     nullptr,                     /* tp_getattr */
     nullptr,                     /* tp_setattr */
-    nullptr,                     /* tp_compare */
+    SST_TP_COMPARE(nullptr)        /* Python2 only */
+    SST_TP_AS_SYNC                 /* Python3 only */
     nullptr,                     /* tp_repr */
     nullptr,                     /* tp_as_number */
     nullptr,                     /* tp_as_sequence */
@@ -325,7 +348,7 @@ PyTypeObject PyModel_StatOutputType = {
     "SST Statistic Output",      /* tp_doc */
     nullptr,                     /* tp_traverse */
     nullptr,                     /* tp_clear */
-    nullptr,                     /* tp_richcompare */
+    SST_TP_RICH_COMPARE(nullptr)   /* Python3 only */
     0,                           /* tp_weaklistoffset */
     nullptr,                     /* tp_iter */
     nullptr,                     /* tp_iternext */
@@ -349,8 +372,15 @@ PyTypeObject PyModel_StatOutputType = {
     nullptr,                     /* tp_weaklist */
     nullptr,                     /* tp_del */
     0,                           /* tp_version_tag */
+    SST_TP_FINALIZE                /* Python3 only */
+    SST_TP_VECTORCALL              /* Python3 only */
+    SST_TP_PRINT_DEP               /* Python3.8 only */
 };
-
+#if PY_MAJOR_VERSION == 3
+#if PY_MINOR_VERSION == 8
+REENABLE_WARNING
+#endif
+#endif
 
 }  /* extern C */
 

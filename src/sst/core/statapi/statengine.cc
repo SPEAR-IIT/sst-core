@@ -1,8 +1,8 @@
-// Copyright 2009-2019 NTESS. Under the terms
+// Copyright 2009-2020 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2019, NTESS
+// Copyright (c) 2009-2020, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
@@ -75,7 +75,7 @@ StatisticProcessingEngine::~StatisticProcessingEngine()
 
     // Destroy all the Statistics that have been created
     for (CompStatMap_t::iterator it_m = m_CompStatMap.begin(); it_m != m_CompStatMap.end(); it_m++) {
-        // Get the Array for this Map Item    
+        // Get the Array for this Map Item
         statArray = it_m->second;
 
         // Walk the stat Array and delete each stat
@@ -86,13 +86,14 @@ StatisticProcessingEngine::~StatisticProcessingEngine()
     }
 }
 
-bool StatisticProcessingEngine::registerStatisticCore(StatisticBase* stat)
+bool StatisticProcessingEngine::registerStatisticCore(StatisticBase* stat, uint8_t comp_load_level)
 {
     if ( stat->isNullStatistic() )
         return true;
 
+    uint8_t stat_load_level = comp_load_level == STATISTICLOADLEVELUNINITIALIZED ? m_statLoadLevel : comp_load_level;
 
-    if ( 0 == m_statLoadLevel ) {
+    if ( 0 == stat_load_level ) {
         m_output.verbose(CALL_INFO, 1, 0,
                 " Warning: Statistic Load Level = 0 (all statistics disabled); statistic %s is disabled...\n",
                 stat->getFullStatName().c_str());
@@ -101,10 +102,10 @@ bool StatisticProcessingEngine::registerStatisticCore(StatisticBase* stat)
 
 
     uint8_t enableLevel = stat->getComponent()->getComponentInfoStatisticEnableLevel(stat->getStatName());
-    if ( enableLevel > m_statLoadLevel ) {
+    if ( enableLevel > stat_load_level ) {
         m_output.verbose(CALL_INFO, 1, 0,
                 " Warning: Load Level %d is too low to enable Statistic %s with Enable Level %d, statistic will not be enabled...\n",
-                m_statLoadLevel, stat->getFullStatName().c_str(), enableLevel);
+                stat_load_level, stat->getFullStatName().c_str(), enableLevel);
         return false;
     }
 
@@ -342,15 +343,15 @@ bool StatisticProcessingEngine::addPeriodicBasedStatistic(const UnitAlgebra& fre
 
 bool StatisticProcessingEngine::addEventBasedStatistic(const UnitAlgebra& count, StatisticBase* stat)
 {
-    if (0 != count.getValue()) {         
+    if (0 != count.getValue()) {
         // Set the Count Limit
         stat->setCollectionCountLimit(count.getRoundedValue());
     } else {
-        stat->setCollectionCountLimit(0); 
+        stat->setCollectionCountLimit(0);
     }
     stat->setFlagResetCountOnOutput(true);
 
-    // Add the statistic to the Array of Event Based Statistics    
+    // Add the statistic to the Array of Event Based Statistics
     m_EventStatisticArray.push_back(stat);
     return true;
 }
@@ -505,7 +506,7 @@ void StatisticProcessingEngine::performStatisticGroupOutputImpl(StatisticGroup &
 }
 
 
-void StatisticProcessingEngine::performGlobalStatisticOutput(bool endOfSimFlag /*=false*/) 
+void StatisticProcessingEngine::performGlobalStatisticOutput(bool endOfSimFlag /*=false*/)
 {
     StatArray_t*    statArray;
     StatisticBase*  stat;
@@ -516,7 +517,7 @@ void StatisticProcessingEngine::performGlobalStatisticOutput(bool endOfSimFlag /
         performStatisticOutputImpl(stat, endOfSimFlag);
     }
 
-    // Output Periodic based statistics 
+    // Output Periodic based statistics
     for (StatMap_t::iterator it_m = m_PeriodicStatisticMap.begin(); it_m != m_PeriodicStatisticMap.end(); it_m++) {
         statArray = it_m->second;
 
@@ -534,7 +535,7 @@ void StatisticProcessingEngine::performGlobalStatisticOutput(bool endOfSimFlag /
 
 
 
-bool StatisticProcessingEngine::handleStatisticEngineClockEvent(Cycle_t UNUSED(CycleNum), SimTime_t timeFactor) 
+bool StatisticProcessingEngine::handleStatisticEngineClockEvent(Cycle_t UNUSED(CycleNum), SimTime_t timeFactor)
 {
     StatArray_t*     statArray;
     StatisticBase*   stat;
@@ -542,7 +543,7 @@ bool StatisticProcessingEngine::handleStatisticEngineClockEvent(Cycle_t UNUSED(C
 
     // Get the array for the timeFactor
     statArray = m_PeriodicStatisticMap[timeFactor];
-    
+
     // Walk the array, and call the output method of each statistic
     for (x = 0; x < statArray->size(); x++) {
         stat = statArray->at(x);
@@ -574,17 +575,17 @@ void StatisticProcessingEngine::handleStatisticEngineStartTimeEvent(SimTime_t ti
 
     // Get the array for the timeFactor
     statArray = m_StartTimeMap[timeFactor];
-    
+
     // Walk the array, and call the output method of each statistic
     for (x = 0; x < statArray->size(); x++) {
         stat = statArray->at(x);
 
-        // Enable the Statistic 
+        // Enable the Statistic
         stat->enable();
     }
 }
 
-void StatisticProcessingEngine::handleStatisticEngineStopTimeEvent(SimTime_t timeFactor) 
+void StatisticProcessingEngine::handleStatisticEngineStopTimeEvent(SimTime_t timeFactor)
 {
     StatArray_t*     statArray;
     StatisticBase*   stat;
@@ -592,12 +593,12 @@ void StatisticProcessingEngine::handleStatisticEngineStopTimeEvent(SimTime_t tim
 
     // Get the array for the timeFactor
     statArray = m_StopTimeMap[timeFactor];
-    
+
     // Walk the array, and call the output method of each statistic
     for (x = 0; x < statArray->size(); x++) {
         stat = statArray->at(x);
 
-        // Disable the Statistic 
+        // Disable the Statistic
         stat->disable();
     }
 }
@@ -609,28 +610,28 @@ StatisticProcessingEngine::isStatisticInCompStatMap(const std::string& compName,
 {
     StatArray_t*        statArray;
     StatisticBase*      TestStat;
-    
+
     // See if the map contains an entry for this Component ID
     if (m_CompStatMap.find(compId) == m_CompStatMap.end() ) {
         // Nope, this component ID has not been registered
         return nullptr;
     }
-    
-    // The CompStatMap has Component ID registered, get the array associated with it    
+
+    // The CompStatMap has Component ID registered, get the array associated with it
     statArray = m_CompStatMap[compId];
-    
-    // Look for the Statistic in this array 
+
+    // Look for the Statistic in this array
     for (StatArray_t::iterator it_v = statArray->begin(); it_v != statArray->end(); it_v++) {
         TestStat = *it_v;
 
-        if ((TestStat->getCompName() == compName) && 
+        if ((TestStat->getCompName() == compName) &&
             (TestStat->getStatName() == statName) &&
             (TestStat->getStatSubId() == statSubId) &&
             (TestStat->getStatDataType() == fieldType)) {
             return TestStat;
         }
     }
-    
+
     // We did not find the stat in this component
     return nullptr;
 }
@@ -644,14 +645,14 @@ void StatisticProcessingEngine::addStatisticToCompStatMap(StatisticBase* Stat,
     // See if the map contains an entry for this Component ID
     if (m_CompStatMap.find(compId) == m_CompStatMap.end() ) {
         // Nope, Create a new Array of Statistics and relate it to the map
-        statArray = new std::vector<StatisticBase*>(); 
-        m_CompStatMap[compId] = statArray; 
+        statArray = new std::vector<StatisticBase*>();
+        m_CompStatMap[compId] = statArray;
     }
 
-    // The CompStatMap has Component ID registered, get the array associated with it    
+    // The CompStatMap has Component ID registered, get the array associated with it
     statArray = m_CompStatMap[compId];
 
-    // Add the statistic to the lists of statistics registered to this component   
+    // Add the statistic to the lists of statistics registered to this component
     statArray->push_back(Stat);
 }
 

@@ -1,12 +1,12 @@
 // -*- c++ -*-
 
-// Copyright 2009-2019 NTESS. Under the terms
+// Copyright 2009-2020 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
-// 
-// Copyright (c) 2009-2019, NTESS
+//
+// Copyright (c) 2009-2020, NTESS
 // All rights reserved.
-// 
+//
 // This file is part of the SST software package. For license
 // information, see the LICENSE file in the top level directory of the
 // distribution.
@@ -43,7 +43,7 @@ class Units {
 
 private:
     friend class UnitAlgebra;
-    
+
     // Static data members and functions
     static std::recursive_mutex unit_lock;
     static std::map<std::string,unit_id_t> valid_base_units;
@@ -111,9 +111,10 @@ private:
     sst_big_num value;
 
     static std::string trim(const std::string& str);
-    void init(const std::string& val);
 
 public:
+    void init(const std::string& val);
+
     UnitAlgebra() {}
     /**
      Create a new UnitAlgebra instance, and pre-populate with a parsed value.
@@ -150,7 +151,7 @@ public:
     std::string toStringBestSI() const;
 
     UnitAlgebra& operator= (const std::string& v);
-    
+
     /** Multiply by an argument; */
     UnitAlgebra& operator*= (const UnitAlgebra& v);
     /** Multiply by an argument; */
@@ -195,6 +196,10 @@ public:
     bool operator< (const UnitAlgebra& v) const;
     /** Compare if this object is less than, or equal to, the argument */
     bool operator<= (const UnitAlgebra& v) const;
+    /** Compare if this object is equal to, the argument */
+    bool operator== (const UnitAlgebra& v) const;
+    /** Compare if this object is not equal to, the argument */
+    bool operator!= (const UnitAlgebra& v) const;
     /** Apply a reciprocal operation to the object */
     UnitAlgebra& invert();
 
@@ -206,7 +211,9 @@ public:
     sst_big_num getValue() const {return value;}
     /** Return the rounded value as a 64bit integer */
     int64_t getRoundedValue() const;
-
+    double getDoubleValue() const;
+    bool isValueZero() const;
+    
     void serialize_order(SST::Core::Serialization::serializer &ser) override {
         // Do the unit
         ser & unit.numerator;

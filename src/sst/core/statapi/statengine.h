@@ -1,8 +1,8 @@
-// Copyright 2009-2019 NTESS. Under the terms
+// Copyright 2009-2020 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2019, NTESS
+// Copyright (c) 2009-2020, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
@@ -79,10 +79,10 @@ public:
       return Factory::getFactory()->Create<Statistic<T>>(type, params, comp, statName, statSubId, params);
     }
 
-    bool registerStatisticWithEngine(StatisticBase* stat, fieldType_t fieldType)
+    bool registerStatisticWithEngine(StatisticBase* stat, fieldType_t fieldType, uint8_t comp_stat_level)
     {
         bool ok;
-        if ((ok = registerStatisticCore(stat))) {
+        if ((ok = registerStatisticCore(stat,comp_stat_level))) {
             addStatisticToCompStatMap(stat, fieldType);
         }
         return ok;
@@ -110,7 +110,7 @@ private:
 
     StatisticOutput* createStatisticOutput(const ConfigStatOutput &cfg);
 
-    bool registerStatisticCore(StatisticBase* stat);
+    bool registerStatisticCore(StatisticBase* stat, uint8_t comp_stat_level);
 
     StatisticOutput* getOutputForStatistic(const StatisticBase *stat) const;
     StatisticGroup& getGroupForStatistic(const StatisticBase *stat) const;
@@ -148,7 +148,7 @@ private:
     StatMap_t                                 m_PeriodicStatisticMap; /*!< Map of Array's of Periodic Based Statistics */
     StatMap_t                                 m_StartTimeMap;         /*!< Map of Array's of Statistics that are started at a sim time */
     StatMap_t                                 m_StopTimeMap;          /*!< Map of Array's of Statistics that are stopped at a sim time */
-    CompStatMap_t                             m_CompStatMap;          /*!< Map of Arrays of Statistics tied to Component Id's */  
+    CompStatMap_t                             m_CompStatMap;          /*!< Map of Arrays of Statistics tied to Component Id's */
     bool                                      m_SimulationStarted;    /*!< Flag showing if Simulation has started */
 
     Output & m_output;

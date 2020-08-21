@@ -1,8 +1,8 @@
-// Copyright 2009-2019 NTESS. Under the terms
+// Copyright 2009-2020 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2019, NTESS
+// Copyright (c) 2009-2020, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
@@ -32,7 +32,9 @@ public:
     void processorPause(int currentCount) {
         if( currentCount < 64 ) {
 #if defined(__x86_64__)
-            asm volatile ("pause" : : : "memory");
+            __asm__ __volatile__ ("pause" : : : "memory");
+#elif ( defined(__arm__) || defined(__aarch64__) )
+            __asm__ __volatile__ ("yield");
 #else
             // Put some pause code in here
 #endif

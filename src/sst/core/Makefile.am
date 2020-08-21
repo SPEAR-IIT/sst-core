@@ -8,7 +8,6 @@ CXX = $(MPICXX)
 AM_CPPFLAGS =  \
 	-DTIXML_USE_STL \
 	-DSST_BUILDING_CORE=1 \
-	$(BOOST_CPPFLAGS) \
 	$(ZOLTAN_CPPFLAGS) \
 	$(PYTHON_CPPFLAGS) \
 	$(LTDLINCL)
@@ -154,9 +153,8 @@ nobase_dist_sst_HEADERS = \
 	warnmacros.h \
 	model/element_python.h
 
-deprecated_nobase_dist_sst_headers = \
-	elibase.h \
-	elementinfo.h
+
+deprecated_nobase_dist_sst_headers = 
 
 
 nobase_nodist_sst_HEADERS = \
@@ -284,7 +282,6 @@ sstsim_x_LDADD = \
 	$(PYTHON_LIBS) \
 	$(ZOLTAN_LIB) \
 	$(PARMETIS_LIB) \
-	$(BOOST_LIBS) \
 	$(MPILIBS) \
 	$(TCMALLOC_LIB) \
 	-lm
@@ -293,8 +290,7 @@ sstsim_x_LDFLAGS = \
 	$(PARMETIS_LDFLAGS) \
 	$(ZOLTAN_LDFLAGS) \
 	$(TCMALLOC_LDFLAGS) \
-	$(BOOST_LDFLAGS) \
-        $(PYTHON_LDFLAGS) \
+	$(PYTHON_LDFLAGS) \
 	-export-dynamic \
 	$(SST_LTLIBS_ELEMLIBS)
 
@@ -302,7 +298,6 @@ sstinfo_x_LDADD = \
 	$(LIBLTDL) \
 	$(ZOLTAN_LIB) \
 	$(PARMETIS_LIB) \
-	$(BOOST_LIBS) \
 	$(MPILIBS) \
 	$(TCMALLOC_LIB) \
 	-lm
@@ -311,8 +306,7 @@ sstinfo_x_LDFLAGS = \
 	$(PARMETIS_LDFLAGS) \
 	$(ZOLTAN_LDFLAGS) \
 	$(TCMALLOC_LDFLAGS) \
-	$(BOOST_LDFLAGS) \
-        $(PYTHON_LDFLAGS) \
+	$(PYTHON_LDFLAGS) \
 	-export-dynamic \
 	$(SST_LTLIBS_ELEMLIBS)
 
@@ -326,11 +320,8 @@ nobase_dist_sst_HEADERS += $(deprecated_nobase_dist_sst_headers)
 sst_core_sources += $(deprecated_sst_core_sources)
 endif
 
-if SST_CONFIG_HAVE_PYTHON3
-sst_core_sources += $(sst_core_python3_sources)
-else
-sst_core_sources += $(sst_core_python2_sources)
-endif
+sst_core_sources += $(sst_core_python_sources)
+nobase_dist_sst_HEADERS += $(sst_core_python_headers)
 
 if !SST_COMPILE_OSX
 sstsim_x_LDADD += -lrt

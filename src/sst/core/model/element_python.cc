@@ -1,10 +1,10 @@
 // -*- c++ -*-
 
-// Copyright 2009-2019 NTESS. Under the terms
+// Copyright 2009-2020 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2019, NTESS
+// Copyright (c) 2009-2020, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
@@ -13,12 +13,14 @@
 
 #include "sst_config.h"
 
-#include "sst/core/model/element_python.h"
-
-// Python header files
+#include "warnmacros.h"
 DISABLE_WARN_DEPRECATED_REGISTER
 #include <Python.h>
 REENABLE_WARNING
+
+#include "sst/core/model/element_python.h"
+
+// Python header files
 #include <traceback.h>
 #include <frameobject.h>
 
@@ -57,17 +59,17 @@ void abortOnPyErr(uint32_t line, const char* file, const char* func,
     vsnprintf (buffer, 2000, format, args);
     //perror (buffer);
     va_end (args);
-    
-    
+
+
     std::stringstream stream;
     stream << buffer;
-    
+
     // Need to format the backtrace
     PyTracebackObject* ptb = (PyTracebackObject*)tb;
     while ( ptb != nullptr ) {
         // Filename
 #ifdef SST_CONFIG_HAVE_PYTHON3
-        stream << "File \"" << PyBytes_AsString(ptb->tb_frame->f_code->co_filename) << "\", ";
+        stream << "File \"" << PyUnicode_AsUTF8(ptb->tb_frame->f_code->co_filename) << "\", ";
 #else
         stream << "File \"" << PyString_AsString(ptb->tb_frame->f_code->co_filename) << "\", ";
 #endif
@@ -75,18 +77,18 @@ void abortOnPyErr(uint32_t line, const char* file, const char* func,
         stream << "line " << ptb->tb_lineno << ", ";
         // Module name
 #ifdef SST_CONFIG_HAVE_PYTHON3
-        stream << PyBytes_AsString(ptb->tb_frame->f_code->co_name) << "\n";
+        stream << PyUnicode_AsUTF8(ptb->tb_frame->f_code->co_name) << "\n";
 #else
         stream << PyString_AsString(ptb->tb_frame->f_code->co_name) << "\n";
 #endif
-        
+
         // Get the next line
         ptb = ptb->tb_next;
     }
 
     // Add in the other error information
 #ifdef SST_CONFIG_HAVE_PYTHON3
-    stream << exc_name << ": " << PyBytes_AsString(PyObject_Str(val)) << "\n";
+    stream << exc_name << ": " << PyUnicode_AsUTF8(PyObject_Str(val)) << "\n";
 #else
     stream << exc_name << ": " << PyString_AsString(PyObject_Str(val)) << "\n";
 #endif
@@ -96,7 +98,7 @@ void abortOnPyErr(uint32_t line, const char* file, const char* func,
 
 
 
-SSTElementPythonModuleCode* 
+SSTElementPythonModuleCode*
 SSTElementPythonModuleCode::addSubModule(const std::string& module_name, char* code, const std::string& filename)
 {
     auto ret = new SSTElementPythonModuleCode(this,module_name,code,filename);
@@ -104,7 +106,7 @@ SSTElementPythonModuleCode::addSubModule(const std::string& module_name, char* c
     return ret;
 }
 
-SSTElementPythonModuleCode* 
+SSTElementPythonModuleCode*
 SSTElementPythonModuleCode::addSubModule(const std::string& module_name)
 {
     auto ret = new SSTElementPythonModuleCode(this,module_name,empty_code,"empty_module");
@@ -117,7 +119,6 @@ void*
 SSTElementPythonModuleCode::load(void* parent_module)
 {
     PyObject* pm = (PyObject*)parent_module;
-
     PyObject *compiled_code = Py_CompileString(code, filename.c_str(), Py_file_input);
     if ( compiled_code == nullptr) abortOnPyErr(CALL_INFO,1,"SSTElementPythonModule: Error running Py_CompileString on %s.  Details follow:\n", filename.c_str());
 
@@ -127,11 +128,11 @@ SSTElementPythonModuleCode::load(void* parent_module)
     // All but the top level module need to add themselves to the top level module
     if ( parent != nullptr) PyModule_AddObject(pm, getFullModuleName().c_str(), module);
     else pm = module;
-    
+
     for ( auto item : sub_modules ) {
         item->load((void*)pm);
-    }    
-    
+    }
+
     return module;
 }
 
@@ -155,24 +156,6 @@ SSTElementPythonModule::SSTElementPythonModule(const std::string& library) :
     sstlibrary = "sst." + library;
 }
 
-#ifndef SST_ENABLE_PREVIEW_BUILD
-void
-SSTElementPythonModule::addPrimaryModule(char* file)
-{
-    if ( primary_module == nullptr ) {
-        primary_module = file;
-    }
-    else {
-        Simulation::getSimulationOutput().fatal(CALL_INFO,1,"SSTElementPythonModule::addPrimaryModule: Attempt to add second primary module.\n");
-    }
-}
-
-void
-SSTElementPythonModule::addSubModule(const std::string& name, char* file)
-{
-    sub_modules.push_back(std::make_pair(name,file));
-}
-#endif
 
 void*
 SSTElementPythonModule::load()
@@ -200,7 +183,7 @@ SSTElementPythonModule::load()
         if ( submodule == nullptr) abortOnPyErr(CALL_INFO,1,"SSTElementPythonModule: Error running PyImport_ExecCodeModule on %s.  Details follow:\n",const_cast<char*>(sstlib.c_str()));
         PyModule_AddObject(module, item.first.c_str(), submodule);
     }
-    
+
     return module;
 }
 
