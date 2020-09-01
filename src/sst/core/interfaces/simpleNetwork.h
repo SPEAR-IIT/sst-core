@@ -62,7 +62,7 @@ public:
         bool   allow_adaptive; /*!< Indicates whether adaptive routing is allowed or not. */
 
         //yao
-        int    num_hops;       /* number of hops message go through */
+        int    num_hops;       /* number of link hops message go through */
         bool   adp_routed;     /* this msg is routed adaptively ? */
         int    special_index;   /* intend to use this as a index to show when to save q-table to a file. Only used by dragonfly topology, trafficGen EP for now*/
         
