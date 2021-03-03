@@ -1,10 +1,10 @@
 // -*- c++ -*-
 
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
@@ -206,6 +206,7 @@ public:
     std::vector<ConfigComponent>  subComponents; /*!< List of subcomponents */
     std::vector<double>           coords;
     uint16_t                      nextSubID;         /*!< Next subID to use for children, if component, if subcomponent, subid of parent */
+    bool                          visited;           /*! Used when traversing graph to indicate component was visited already */
 
     static constexpr ComponentId_t null_id = std::numeric_limits<ComponentId_t>::max();
 
@@ -218,14 +219,14 @@ public:
     ConfigComponent cloneWithoutLinksOrParams() const;
 
     ~ConfigComponent() {}
-    ConfigComponent() : id(null_id), statLoadLevel(STATISTICLOADLEVELUNINITIALIZED), nextSubID(1) { }
+    ConfigComponent() : id(null_id), statLoadLevel(STATISTICLOADLEVELUNINITIALIZED), nextSubID(1), visited(false) { }
 
     ComponentId_t getNextSubComponentID();
 
     ConfigComponent* getParent() const;
     std::string getFullName() const;
 
-    
+
     void setRank(RankInfo r);
     void setWeight(double w);
     void setCoordinates(const std::vector<double> &c);
@@ -238,7 +239,7 @@ public:
     void addStatisticParameter(const std::string& statisticName, const std::string& param, const std::string& value, bool recursively = false);
     void setStatisticParameters(const std::string& statisticName, const Params &params, bool recursively = false);
     void setStatisticLoadLevel(uint8_t level, bool recursively = false);
-    
+
     std::vector<LinkId_t> allLinks() const;
 
     void serialize_order(SST::Core::Serialization::serializer &ser) override {
@@ -424,7 +425,7 @@ public:
     PartitionGraph* getPartitionGraph();
     PartitionGraph* getCollapsedPartitionGraph();
     void annotateRanks(PartitionGraph* graph);
-    void getConnectedNoCutComps(ComponentId_t start, ComponentIdMap_t& group);
+    void getConnectedNoCutComps(ComponentId_t start, std::set<ComponentId_t>& group);
 
     void serialize_order(SST::Core::Serialization::serializer &ser) override
     {
@@ -443,9 +444,9 @@ private:
 
     ComponentId_t nextComponentId;
 
-    ConfigLinkMap_t      links;
-    ConfigComponentMap_t comps;
-    ConfigComponentNameMap_t compsByName;
+    ConfigLinkMap_t      links;  // SparseVectorMap
+    ConfigComponentMap_t comps;  // SparseVectorMap
+    ConfigComponentNameMap_t compsByName;  // std::map
     std::map<std::string, ConfigStatGroup> statGroups;
 
     std::map<std::string,LinkId_t> link_names;

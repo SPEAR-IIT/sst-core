@@ -1,8 +1,8 @@
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
@@ -45,13 +45,12 @@ public:
        Performs a partition of an SST simulation configuration
        \param graph The simulation configuration to partition
     */
-    void performPartition(PartitionGraph* graph) override;
-
-    void performPartition(ConfigGraph* graph) override {
+    void performPartition(PartitionGraph* graph) override {
         SST::Partition::SSTPartitioner::performPartition(graph);
     }
+    void performPartition(ConfigGraph* graph) override;
 
-    bool requiresConfigGraph() override { return false; }
+    bool requiresConfigGraph() override { return true; }
     bool spawnOnAllRanks() override { return false; }
 
 

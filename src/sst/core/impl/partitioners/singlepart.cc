@@ -1,8 +1,8 @@
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
@@ -23,9 +23,9 @@ using namespace SST::IMPL::Partition;
 
 SSTSinglePartition::SSTSinglePartition(RankInfo UNUSED(total_ranks), RankInfo UNUSED(my_rank), int UNUSED(verbosity)) {}
 
-void SSTSinglePartition::performPartition(PartitionGraph* graph) {
+void SSTSinglePartition::performPartition(ConfigGraph* graph) {
 
-    PartitionComponentMap_t& compMap = graph->getComponentMap();
+    ConfigComponentMap_t& compMap = graph->getComponentMap();
 
     for(auto compItr = compMap.begin(); compItr != compMap.end(); compItr++) {
         compItr->rank = RankInfo(0,0);

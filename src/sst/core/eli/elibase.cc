@@ -1,8 +1,8 @@
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
@@ -33,12 +33,15 @@ LoadedLibraries::addLoader(const std::string& lib, const std::string& name,
     loaders_ = std::unique_ptr<LibraryMap>(new LibraryMap);
   }
   (*loaders_)[lib][name].push_back(loader);
-    return true;
+  return true;
 }
 
 const LoadedLibraries::LibraryMap&
 LoadedLibraries::getLoaders(){
-    return *loaders_;
+  if (!loaders_){
+    loaders_ = std::unique_ptr<LibraryMap>(new LibraryMap);
+  }
+  return *loaders_;
 }
 
 bool
