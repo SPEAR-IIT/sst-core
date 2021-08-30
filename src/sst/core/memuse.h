@@ -9,22 +9,21 @@
 // information, see the LICENSE file in the top level directory of the
 // distribution.
 
-
-#ifndef _H_SST_CORE_MEMUSE
-#define _H_SST_CORE_MEMUSE
+#ifndef SST_CORE_MEMUSE_H
+#define SST_CORE_MEMUSE_H
 
 #include <inttypes.h>
 
 namespace SST {
 namespace Core {
 
+uint64_t localMemSize();
 uint64_t maxLocalMemSize();
 uint64_t maxGlobalMemSize();
 uint64_t maxLocalPageFaults();
 uint64_t globalPageFaults();
 
-}
-}
+} // namespace Core
+} // namespace SST
 
-
-#endif
+#endif // SST_CORE_MEMUSE_H

@@ -10,10 +10,9 @@ AM_CPPFLAGS =  \
 	-DSST_BUILDING_CORE=1 \
 	$(ZOLTAN_CPPFLAGS) \
 	$(PYTHON_CPPFLAGS) \
+	-I$(top_srcdir)/external \
 	$(LTDLINCL)
 
-DIST_SUBDIRS = libltdl .
-SUBDIRS = libltdl .
 EXTRA_DIST = mainpage.dox eli/README.md
 
 sstdir = $(includedir)/sst/core
@@ -57,22 +56,13 @@ nobase_dist_sst_HEADERS = \
 	pollingLinkQueue.h \
 	profile.h \
 	rankInfo.h \
-	rankSyncParallelSkip.h \
-	rankSyncSerialSkip.h \
 	simulation.h \
 	sparseVectorMap.h \
 	sst_types.h \
-	sstinfo.h \
 	sstpart.h \
 	stopAction.h \
 	stringize.h \
 	subcomponent.h \
-	syncBase.h \
-	syncManager.h \
-	syncQueue.h \
-	threadSync.h \
-	threadSyncSimpleSkip.h \
-	threadSyncQueue.h \
 	sharedRegion.h \
 	sharedRegionImpl.h \
 	timeConverter.h \
@@ -90,6 +80,7 @@ nobase_dist_sst_HEADERS = \
 	eli/interfaceInfo.h \
 	eli/paramsInfo.h \
 	eli/portsInfo.h \
+	eli/simpleInfo.h \
 	eli/statsInfo.h \
 	eli/subcompSlotInfo.h \
 	serialization/ser_ptr_type.h \
@@ -114,6 +105,7 @@ nobase_dist_sst_HEADERS = \
 	interfaces/TestEvent.h \
 	interfaces/stringEvent.h \
 	interfaces/simpleMem.h \
+	interfaces/stdMem.h \
 	interfaces/simpleNetwork.h \
 	interprocess/tunneldef.h \
 	interprocess/mmapparent.h \
@@ -124,6 +116,7 @@ nobase_dist_sst_HEADERS = \
 	interprocess/sstmutex.h \
 	interprocess/ipctunnel.h \
 	rng/sstrng.h \
+	rng/rng.h \
 	rng/marsaglia.h \
 	rng/poisson.h \
 	rng/mersenne.h \
@@ -154,7 +147,7 @@ nobase_dist_sst_HEADERS = \
 	model/element_python.h
 
 
-deprecated_nobase_dist_sst_headers = 
+deprecated_nobase_dist_sst_headers =
 
 
 nobase_nodist_sst_HEADERS = \
@@ -190,15 +183,8 @@ sst_core_sources = \
 	output.cc \
 	params.cc \
 	pollingLinkQueue.cc \
-	rankSyncParallelSkip.cc \
-	rankSyncSerialSkip.cc \
 	simulation.cc \
 	subcomponent.cc \
-	syncBase.cc \
-	syncManager.cc \
-	syncQueue.cc \
-	threadSync.cc \
-	threadSyncSimpleSkip.cc \
 	sharedRegion.cc \
 	timeLord.cc \
 	uninitializedQueue.cc \
@@ -210,13 +196,14 @@ sst_core_sources = \
 	serialization/serialize_serializable.cc \
 	serialization/serializer.cc \
 	serialization/statics.cc \
+	sstinfo.h \
 	interfaces/TestEvent.cc \
 	interfaces/simpleMem.cc \
+	interfaces/stdMem.cc \
 	interfaces/simpleNetwork.cc \
 	interprocess/ipctunnel.cc \
 	interprocess/mmapparent.cc \
 	interprocess/shmparent.cc \
-	rng/sstrng.cc \
 	rng/marsaglia.cc \
 	rng/mersenne.cc \
 	rng/xorshift.cc \
@@ -230,7 +217,8 @@ sst_core_sources = \
 	statapi/statoutputjson.cc \
 	statapi/statbase.cc \
 	cputimer.cc \
-	iouse.cc
+	iouse.cc \
+	simulation_impl.h
 
 bin_PROGRAMS = sst sst-info sst-config sst-register
 libexec_PROGRAMS = sstsim.x sstinfo.x
@@ -278,7 +266,6 @@ sstinfo_x_SOURCES = \
 	$(sst_xml_sources)
 
 sstsim_x_LDADD = \
-	$(LIBLTDL) \
 	$(PYTHON_LIBS) \
 	$(ZOLTAN_LIB) \
 	$(PARMETIS_LIB) \
@@ -295,7 +282,6 @@ sstsim_x_LDFLAGS = \
 	$(SST_LTLIBS_ELEMLIBS)
 
 sstinfo_x_LDADD = \
-	$(LIBLTDL) \
 	$(ZOLTAN_LIB) \
 	$(PARMETIS_LIB) \
 	$(MPILIBS) \
@@ -310,10 +296,13 @@ sstinfo_x_LDFLAGS = \
 	-export-dynamic \
 	$(SST_LTLIBS_ELEMLIBS)
 
-include tinyxml/Makefile.inc
+include ../../../external/tinyxml/Makefile.inc
+include ../../../external/nlohmann/Makefile.inc
 include part/Makefile.inc
 include model/Makefile.inc
+include shared/Makefile.inc
 include impl/Makefile.inc
+include sync/Makefile.inc
 include testingframework/Makefile.inc
 include testElements/Makefile.inc
 

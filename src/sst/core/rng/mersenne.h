@@ -12,6 +12,8 @@
 #ifndef SST_CORE_RNG_MERSENNE_H
 #define SST_CORE_RNG_MERSENNE_H
 
+#include "rng.h"
+
 #include <stdint.h>
 #include <sys/time.h>
 
@@ -31,7 +33,8 @@ namespace RNG {
     RNG provides a better "randomness" to the distribution of outputs but is computationally
     more expensive than the Marsaglia RNG.
 */
-class MersenneRNG : public SSTRandom {
+class MersenneRNG : public SST::RNG::Random
+{
 
 public:
     /**
@@ -50,7 +53,7 @@ public:
     /**
        Generates the next random number as a double value between 0 and 1.
     */
-    double   nextUniform() override;
+    double nextUniform() override;
 
     /**
        Generates the next random number as an unsigned 32-bit integer
@@ -65,12 +68,12 @@ public:
     /**
        Generates the next random number as a signed 64-bit integer
     */
-    int64_t  generateNextInt64() override;
+    int64_t generateNextInt64() override;
 
     /**
        Generates the next random number as a signed 32-bit integer
     */
-    int32_t  generateNextInt32() override;
+    int32_t generateNextInt32() override;
 
     /**
        Seed the XOR RNG
@@ -82,11 +85,11 @@ public:
     */
     ~MersenneRNG();
 
-    private:
+private:
     /**
        Generates the next batch of random numbers
     */
-    void  generateNextBatch();
+    void generateNextBatch();
 
     /**
        Stores the next set of random numbers
@@ -97,10 +100,9 @@ public:
        Tells us what index of the random number list the next returnable number should come from
     */
     int index;
-
 };
 
-} //namespace RNG
-} //namespace SST
+} // namespace RNG
+} // namespace SST
 
-#endif //SST_CORE_RNG_MERSENNE_H
+#endif // SST_CORE_RNG_MERSENNE_H

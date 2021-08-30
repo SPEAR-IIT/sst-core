@@ -128,14 +128,33 @@ def verify_concurrent_test_engine_available():
 class SSTTextTestRunner(unittest.TextTestRunner):
     """ A superclass to support SST required testing """
 
+    if blessings_loaded:
+        _terminal = Terminal()
+        colours = {
+            None: text_type,
+            'failed': _terminal.bold_red,
+            'passed': _terminal.green,
+            'notes': _terminal.bold_yellow,
+        }
+    else:
+        colours = {
+            None: text_type
+        }
+
     def __init__(self, stream=sys.stderr, descriptions=True, verbosity=1,
-                 failfast=False, buffer=False, resultclass=None):
+                 failfast=False, buffer=False, resultclass=None,
+                 no_colour_output=False):
         super(SSTTextTestRunner, self).__init__(stream, descriptions, verbosity,
                                                 failfast, buffer, resultclass)
 
         if not blessings_loaded or not pygments_loaded:
             log_info(("Full colorized output can be obtained by running") +
                      (" 'pip install blessings pygments'"), forced=False)
+
+        if blessings_loaded:
+            self.no_colour_output = no_colour_output
+        else:
+            self.no_colour_output = True
 
         log("\n=== TESTS STARTING " + ("=" * 51))
 
@@ -199,6 +218,7 @@ class SSTTextTestRunner(unittest.TextTestRunner):
         log("Errors               = {0}".format(len(run_results.errors)))
         log("Expected Failures    = {0}".format(len(run_results.expectedFailures)))
         log("Unexpected Successes = {0}".format(len(run_results.unexpectedSuccesses)))
+        log("Testing Notes        = {0}".format(len(test_engine_globals.TESTENGINE_TESTNOTESLIST)))
         log(("-----------------------------------") +
             ("-----------------------------------"))
         t_min, t_sec = divmod(total_testing_time, 60)
@@ -206,18 +226,36 @@ class SSTTextTestRunner(unittest.TextTestRunner):
         log("-- Total Test Time = {0:d} Hours, {1:d} Minutes, {2:2.3f} Seconds --".format(int(t_hr), int(t_min), t_sec))
 
         if self.did_tests_pass(run_results):
-            log_forced("\n====================")
-            log_forced("== TESTING PASSED ==")
-            log_forced("====================")
-        else:
-            if test_engine_globals.TESTENGINE_ERRORCOUNT == 0:
-                log_forced("\n====================")
-                log_forced("== TESTING FAILED ==")
-                log_forced("====================")
+            if self.no_colour_output:
+                color_type = None
             else:
-                log_forced("\n==================================")
-                log_forced("== TESTING FAILED DUE TO ERRORS ==")
-                log_forced("==================================")
+                color_type = 'passed'
+            log_forced(str(self.colours[color_type]("\n====================")))
+            log_forced(str(self.colours[color_type]("== TESTING PASSED ==")))
+            log_forced(str(self.colours[color_type]("====================")))
+        else:
+            if self.no_colour_output:
+                color_type = None
+            else:
+                color_type = 'failed'
+            if test_engine_globals.TESTENGINE_ERRORCOUNT == 0:
+                log_forced(str(self.colours[color_type]("\n====================")))
+                log_forced(str(self.colours[color_type]("== TESTING FAILED ==")))
+                log_forced(str(self.colours[color_type]("====================")))
+            else:
+                log_forced(str(self.colours[color_type]("\n==================================")))
+                log_forced(str(self.colours[color_type]("== TESTING FAILED DUE TO ERRORS ==")))
+                log_forced(str(self.colours[color_type]("==================================")))
+
+        if test_engine_globals.TESTENGINE_TESTNOTESLIST:
+            if self.no_colour_output:
+                color_type = None
+            else:
+                color_type = 'notes'
+            log_forced(str(self.colours[color_type](("\n=== TESTING NOTES =================") +
+                       ("==================================="))))
+            for note in test_engine_globals.TESTENGINE_TESTNOTESLIST:
+                log_forced(str(self.colours[color_type](" - {0}".format(note))))
 
         log(("\n===================================") +
             ("===================================\n"))
@@ -411,7 +449,8 @@ class SSTTextTestResult(unittest.TestResult):
     def addSkip(self, test, reason):
         super(SSTTextTestResult, self).addSkip(test, reason)
         #log_forced("DEBUG - addSkip: Test = {0}, reason = {1}\n".format(test, reason))
-        self.printResult(test, 's', 'SKIPPED: {0!r}'.format(reason), 'skip', showruntime=False)
+        if not test_engine_globals.TESTENGINE_IGNORESKIPS:
+            self.printResult(test, 's', 'SKIPPED', 'skip', showruntime=False)
 
         if not self._is_test_of_type_ssttestcase(test):
             return
@@ -451,6 +490,8 @@ class SSTTextTestResult(unittest.TestResult):
         log("=" * 70)
         log("=== TESTS FINISHED " + ("=" * 51))
         log("=" * 70 + "\n")
+        if not test_engine_globals.TESTENGINE_IGNORESKIPS:
+            self.printSkipList('SKIPPED', self.skipped)
         self.printErrorList('ERROR', self.errors)
         self.printErrorList('FAIL', self.failures)
 
@@ -465,6 +506,20 @@ class SSTTextTestResult(unittest.TestResult):
             title = '%s: %s' % (flavour, self.getLongDescription(test))
             self.stream.writeln(colour(title))
             self.stream.writeln(self.separator2)
+            if pygments_loaded:
+                self.stream.writeln(highlight(err, self.lexer, self.formatter))
+            else:
+                self.stream.writeln(err)
+
+    def printSkipList(self, flavour, errors):
+        if self.no_colour_output:
+            colour = self.colours[None]
+        else:
+            colour = self.colours["skip"]
+
+        for test, err in errors:
+            title = '%s: %s' % (flavour, self.getLongDescription(test))
+            self.stream.writeln(colour(title))
             if pygments_loaded:
                 self.stream.writeln(highlight(err, self.lexer, self.formatter))
             else:
@@ -751,7 +806,6 @@ class SSTTestSuitesResultsDict:
             # Dont log if everything passes
             if len(self.testsuitesresultsdict[tmtc_name].get_failed()) == 0 and \
                len(self.testsuitesresultsdict[tmtc_name].get_errored()) == 0 and \
-               len(self.testsuitesresultsdict[tmtc_name].get_skiped()) == 0 and \
                len(self.testsuitesresultsdict[tmtc_name].get_expectedfailed()) == 0 and \
                len(self.testsuitesresultsdict[tmtc_name].get_unexpectedsuccess()) == 0:
                 pass
@@ -761,8 +815,6 @@ class SSTTestSuitesResultsDict:
                     log(" - FAILED  : {0}".format(testname))
                 for testname in self.testsuitesresultsdict[tmtc_name].get_errored():
                     log(" - ERROR   : {0}".format(testname))
-                for testname in self.testsuitesresultsdict[tmtc_name].get_skiped():
-                    log(" - SKIPPED : {0}".format(testname))
                 for testname in self.testsuitesresultsdict[tmtc_name].get_expectedfailed():
                     log(" - EXPECTED FAILED    : {0}".format(testname))
                 for testname in self.testsuitesresultsdict[tmtc_name].get_unexpectedsuccess():

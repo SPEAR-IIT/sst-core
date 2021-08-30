@@ -10,18 +10,23 @@
 // distribution.
 
 #include "sst_config.h"
+
 #include "sst/core/action.h"
 
-#include "sst/core/simulation.h"
+#include "sst/core/simulation_impl.h"
 
 namespace SST {
 
-void Action::endSimulation() {
-    Simulation::getSimulation()->endSimulation();
+void
+Action::endSimulation()
+{
+    Simulation_impl::getSimulation()->endSimulation();
 }
 
-void Action::endSimulation(SimTime_t end) {
-    Simulation::getSimulation()->endSimulation(end);
+void
+Action::endSimulation(SimTime_t end)
+{
+    Simulation_impl::getSimulation()->endSimulation(end);
 }
 
 } // namespace SST

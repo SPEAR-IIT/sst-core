@@ -9,46 +9,50 @@
 // information, see the LICENSE file in the top level directory of the
 // distribution.
 
-
 #include "sst_config.h"
 
 #include "poisson.h"
 
+#include "distrib.h"
+
 using namespace SST::RNG;
 
-SSTPoissonDistribution::SSTPoissonDistribution(const double mn) :
-    SSTRandomDistribution(), lambda(mn) {
+PoissonDistribution::PoissonDistribution(const double mn) : RandomDistribution(), lambda(mn)
+{
 
-    baseDistrib = new MersenneRNG();
+    baseDistrib   = new MersenneRNG();
     deleteDistrib = true;
 }
 
-SSTPoissonDistribution::SSTPoissonDistribution(const double mn, SSTRandom* baseDist) :
-    SSTRandomDistribution(), lambda(mn) {
+PoissonDistribution::PoissonDistribution(const double mn, SST::RNG::Random* baseDist) : RandomDistribution(), lambda(mn)
+{
 
-    baseDistrib = baseDist;
+    baseDistrib   = baseDist;
     deleteDistrib = false;
 }
 
-SSTPoissonDistribution::~SSTPoissonDistribution() {
-    if(deleteDistrib) {
-        delete baseDistrib;
-    }
+PoissonDistribution::~PoissonDistribution()
+{
+    if ( deleteDistrib ) { delete baseDistrib; }
 }
 
-double SSTPoissonDistribution::getNextDouble() {
+double
+PoissonDistribution::getNextDouble()
+{
     const double L = exp(-lambda);
-          double p = 1.0;
-          int k = 0;
+    double       p = 1.0;
+    int          k = 0;
 
     do {
         k++;
         p *= baseDistrib->nextUniform();
-    } while(p > L);
+    } while ( p > L );
 
     return k - 1;
 }
 
-double SSTPoissonDistribution::getLambda() {
+double
+PoissonDistribution::getLambda()
+{
     return lambda;
 }

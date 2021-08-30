@@ -10,8 +10,8 @@
 // distribution.
 //
 
-#ifndef _H_SST_CORE_CONFIG_OUTPUT_DOT
-#define _H_SST_CORE_CONFIG_OUTPUT_DOT
+#ifndef SST_CORE_DOT_CONFIG_OUTPUT_H
+#define SST_CORE_DOT_CONFIG_OUTPUT_H
 
 #include "sst/core/configGraph.h"
 #include "sst/core/configGraphOutput.h"
@@ -19,17 +19,18 @@
 namespace SST {
 namespace Core {
 
-class DotConfigGraphOutput : public ConfigGraphOutput {
+class DotConfigGraphOutput : public ConfigGraphOutput
+{
 public:
     DotConfigGraphOutput(const char* path);
     virtual void generate(const Config* cfg, ConfigGraph* graph) override;
 
 protected:
-    void generateDot(const ConfigComponent& comp, const ConfigLinkMap_t& linkMap) const;
-    void generateDot(const ConfigLink& link) const;
+    void generateDot(const ConfigComponent* comp, const ConfigLinkMap_t& linkMap, const uint32_t dot_verbosity) const;
+    void generateDot(const ConfigLink& link, const uint32_t dot_verbosity) const;
 };
 
-}
-}
+} // namespace Core
+} // namespace SST
 
-#endif
+#endif // SST_CORE_DOT_CONFIG_OUTPUT_H

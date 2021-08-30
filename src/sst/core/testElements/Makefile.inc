@@ -20,11 +20,13 @@ libcoreTestElement_la_SOURCES = \
 	testElements/coreTest_RNGComponent.cc \
 	testElements/coreTest_StatisticsComponent.h \
 	testElements/coreTest_StatisticsComponent.cc \
+	testElements/coreTest_Links.h \
+	testElements/coreTest_Links.cc \
 	testElements/coreTest_Message.h \
 	testElements/coreTest_MessageGeneratorComponent.h \
 	testElements/coreTest_MessageGeneratorComponent.cc \
-	testElements/coreTest_LookupTableComponent.h \
-	testElements/coreTest_LookupTableComponent.cc \
+	testElements/coreTest_SharedObjectComponent.h \
+	testElements/coreTest_SharedObjectComponent.cc \
 	testElements/coreTest_SubComponent.h \
 	testElements/coreTest_SubComponent.cc \
 	testElements/coreTest_Module.h \

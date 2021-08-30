@@ -12,25 +12,25 @@
 #ifndef SST_CORE_LINKMAP_H
 #define SST_CORE_LINKMAP_H
 
-#include "sst/core/sst_types.h"
-
-#include <string>
-#include <map>
-
 #include "sst/core/component.h"
 #include "sst/core/link.h"
+#include "sst/core/sst_types.h"
+
+#include <map>
+#include <string>
 
 namespace SST {
 
 /**
  * Maps port names to the Links that are connected to it
  */
-class LinkMap {
+class LinkMap
+{
 
 private:
-    std::map<std::string,Link*> linkMap;
+    std::map<std::string, Link*> linkMap;
     // const std::vector<std::string> * allowedPorts;
-    std::vector<std::string> selfPorts;
+    std::vector<std::string>     selfPorts;
 
     // bool checkPort(const char *def, const char *offered) const
     // {
@@ -79,7 +79,8 @@ private:
     //     const char *x = name.c_str();
     //     bool found = false;
     //     if ( nullptr != allowedPorts ) {
-    //         for ( std::vector<std::string>::const_iterator i = allowedPorts->begin() ; i != allowedPorts->end() ; ++i ) {
+    //         for ( std::vector<std::string>::const_iterator i = allowedPorts->begin() ; i != allowedPorts->end() ; ++i
+    //         ) {
     //             /* Compare name with stored name, which may have wildcards */
     //             if ( checkPort(i->c_str(), x) ) {
     //                 found = true;
@@ -95,7 +96,8 @@ private:
     //     const char *x = name.c_str();
     //     bool found = false;
     //     if ( nullptr != allowedPorts ) {
-    //         for ( std::vector<std::string>::const_iterator i = allowedPorts->begin() ; i != allowedPorts->end() ; ++i ) {
+    //         for ( std::vector<std::string>::const_iterator i = allowedPorts->begin() ; i != allowedPorts->end() ; ++i
+    //         ) {
     //             /* Compare name with stored name, which may have wildcards */
     //             if ( checkPort(i->c_str(), x) ) {
     //                 found = true;
@@ -119,10 +121,23 @@ private:
     // }
 
 public:
-    LinkMap() /*: allowedPorts(nullptr)*/ {}
-    ~LinkMap() {
+#if !SST_BUILDING_CORE
+    LinkMap() /*: allowedPorts(nullptr)*/ __attribute__((
+        deprecated("LinkMap class was not intended to be used outside of SST Core and will be removed in SST 12.")))
+#else
+    LinkMap() /*: allowedPorts(nullptr)*/
+#endif
+    {}
+
+#if !SST_BUILDING_CORE
+    ~LinkMap() __attribute__((
+        deprecated("LinkMap class was not intended to be used outside of SST Core and will be removed in SST 12.")))
+#else
+    ~LinkMap()
+#endif
+    {
         // Delete all the links in the map
-        for ( std::map<std::string,Link*>::iterator it = linkMap.begin(); it != linkMap.end(); ++it ) {
+        for ( std::map<std::string, Link*>::iterator it = linkMap.begin(); it != linkMap.end(); ++it ) {
             delete it->second;
         }
         linkMap.clear();
@@ -136,64 +151,103 @@ public:
     //     allowedPorts = p;
     // }
 
-
-
     /**
      * Add a port name to the list of allowed ports.
      * Used by SelfLinks, as these are undocumented.
      */
-    void addSelfPort(const std::string& name)
+#if !SST_BUILDING_CORE
+    void addSelfPort(const std::string& name) __attribute__((
+        deprecated("LinkMap class was not intended to be used outside of SST Core and will be removed in SST 12.")))
+#else
+    void                          addSelfPort(const std::string& name)
+#endif
     {
         selfPorts.push_back(name);
     }
 
-    bool isSelfPort(const std::string& name) const {
-        for ( std::vector<std::string>::const_iterator i = selfPorts.begin() ; i != selfPorts.end() ; ++i ) {
+#if !SST_BUILDING_CORE
+    bool isSelfPort(const std::string& name) const __attribute__((
+        deprecated("LinkMap class was not intended to be used otuside of SST Core and will be removed in SST 12.")))
+#else
+    bool                          isSelfPort(const std::string& name) const
+#endif
+    {
+        for ( std::vector<std::string>::const_iterator i = selfPorts.begin(); i != selfPorts.end(); ++i ) {
             /* Compare name with stored name, which may have wildcards */
             // if ( checkPort(i->c_str(), x) ) {
-            if ( name == *i ) {
-                return true;
-            }
+            if ( name == *i ) { return true; }
         }
         return false;
     }
 
     /** Inserts a new pair of name and link into the map */
-    void insertLink(const std::string& name, Link* link) {
-        linkMap.insert(std::pair<std::string,Link*>(name,link));
+#if !SST_BUILDING_CORE
+    void insertLink(const std::string& name, Link* link) __attribute__((
+        deprecated("LinkMap class was not intended to be used outside of SST Core and will be removed in SST 12.")))
+#else
+    void                          insertLink(const std::string& name, Link* link)
+#endif
+    {
+        linkMap.insert(std::pair<std::string, Link*>(name, link));
     }
 
-    void removeLink(const std::string& name) {
+#if !SST_BUILDING_CORE
+    void removeLink(const std::string& name) __attribute__((
+        deprecated("LinkMap class was not intended to be used outside of SST Core and will be removed in SST 12.")))
+#else
+    void                          removeLink(const std::string& name)
+#endif
+    {
         linkMap.erase(name);
     }
 
     /** Returns a Link pointer for a given name */
-    Link* getLink(const std::string& name) {
-//         if ( !checkPort(name) ) {
-// #ifdef USE_PARAM_WARNINGS
-//             std::cerr << "Warning:  Using undocumented port '" << name << "'." << std::endl;
-// #endif
-//         }
-        std::map<std::string,Link*>::iterator it = linkMap.find(name);
-        if ( it == linkMap.end() ) return nullptr;
-        else return it->second;
+#if !SST_BUILDING_CORE
+    Link* getLink(const std::string& name) __attribute__((
+        deprecated("LinkMap class was not intended to be used outside of SST Core and will be removed in SST 12.")))
+#else
+    Link*                         getLink(const std::string& name)
+#endif
+    {
+
+        //         if ( !checkPort(name) ) {
+        // #ifdef USE_PARAM_WARNINGS
+        //             std::cerr << "Warning:  Using undocumented port '" << name << "'." << std::endl;
+        // #endif
+        //         }
+        std::map<std::string, Link*>::iterator it = linkMap.find(name);
+        if ( it == linkMap.end() )
+            return nullptr;
+        else
+            return it->second;
     }
 
     /**
        Checks to see if LinkMap is empty.
        @return True if Link map is empty, false otherwise
     */
-    bool empty() {
+#if !SST_BUILDING_CORE
+    bool empty() __attribute__((
+        deprecated("LinkMap class was not intended to be used outside of SST Core and will be removed in SST 12.")))
+#else
+    bool                          empty()
+#endif
+    {
         return linkMap.empty();
     }
 
     // FIXME: Kludge for now, fix later.  Need to make LinkMap look
     // like a regular map instead.
     /** Return a reference to the internal map */
-    std::map<std::string,Link*>& getLinkMap() {
+#if !SST_BUILDING_CORE
+    std::map<std::string, Link*>& getLinkMap() __attribute__((
+        deprecated("LinkMap class was not intended to be used outside of SST Core and will be removed in SST 12.")))
+#else
+    std::map<std::string, Link*>& getLinkMap()
+#endif
+    {
         return linkMap;
     }
-
 };
 
 } // namespace SST
