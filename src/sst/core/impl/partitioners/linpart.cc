@@ -1,8 +1,8 @@
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
@@ -10,22 +10,25 @@
 // distribution.
 
 #include "sst_config.h"
+
 #include "sst/core/impl/partitioners/linpart.h"
 
-#include "sst/core/warnmacros.h"
-
-#include "sst/core/output.h"
 #include "sst/core/configGraph.h"
+#include "sst/core/output.h"
+#include "sst/core/warnmacros.h"
 
 using namespace std;
 using namespace SST::IMPL::Partition;
 
-SSTLinearPartition::SSTLinearPartition(RankInfo mpiranks, RankInfo UNUSED(my_rank), int verbosity) {
-    rankcount = mpiranks;
+SSTLinearPartition::SSTLinearPartition(RankInfo mpiranks, RankInfo UNUSED(my_rank), int verbosity)
+{
+    rankcount  = mpiranks;
     partOutput = new Output("LinearPartition ", verbosity, 0, SST::Output::STDOUT);
 }
 
-void SSTLinearPartition::performPartition(PartitionGraph* graph) {
+void
+SSTLinearPartition::performPartition(PartitionGraph* graph)
+{
     assert(rankcount.rank > 0);
 
     PartitionComponentMap_t& compMap = graph->getComponentMap();
@@ -33,9 +36,9 @@ void SSTLinearPartition::performPartition(PartitionGraph* graph) {
     uint32_t tot_ranks = rankcount.rank * rankcount.thread;
 
     // const int componentCount = compMap.size();
-    const size_t componentCount = graph->getNumComponents();
-    size_t componentRemainder = componentCount % tot_ranks;
-    const size_t componentPerRank = componentCount / tot_ranks;
+    const size_t componentCount     = graph->getNumComponents();
+    size_t       componentRemainder = componentCount % tot_ranks;
+    const size_t componentPerRank   = componentCount / tot_ranks;
 
     partOutput->verbose(CALL_INFO, 1, 0, "Performing a linear partition scheme for simulation model.\n");
     partOutput->verbose(CALL_INFO, 1, 0, "Expected linear scheme:\n");
@@ -44,25 +47,22 @@ void SSTLinearPartition::performPartition(PartitionGraph* graph) {
     partOutput->verbose(CALL_INFO, 1, 0, "- Remainder (non-balanced dist.):   %10zu\n", componentRemainder);
 
     RankInfo currentAllocatingRank(0, 0);
-    size_t componentsOnCurrentRank = 0;
+    size_t   componentsOnCurrentRank = 0;
 
     /* Special case: Fewer components than ranks: */
     if ( 0 == componentPerRank ) componentRemainder = 0;
 
-    for(PartitionComponentMap_t::iterator compItr = compMap.begin();
-        compItr != compMap.end();
-        compItr++) {
+    for ( PartitionComponentMap_t::iterator compItr = compMap.begin(); compItr != compMap.end(); compItr++ ) {
 
-        compItr->rank = currentAllocatingRank;
+        (*compItr)->rank = currentAllocatingRank;
         componentsOnCurrentRank++;
 
-
-        if(componentsOnCurrentRank >= componentPerRank) {
+        if ( componentsOnCurrentRank >= componentPerRank ) {
             /* Work off the remainder, by adding one more to this rank */
             if ( componentRemainder > 0 ) {
                 --componentRemainder;
                 ++compItr;
-                compItr->rank = currentAllocatingRank;
+                (*compItr)->rank = currentAllocatingRank;
             }
 
             /* Advance our currentAllocatingRank */

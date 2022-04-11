@@ -1,21 +1,20 @@
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
 // information, see the LICENSE file in the top level directory of the
 // distribution.
 
+#ifndef SST_CORE_SSTPART_H
+#define SST_CORE_SSTPART_H
 
-#ifndef SST_CORE_PART_BASE
-#define SST_CORE_PART_BASE
-
+#include "sst/core/eli/elementinfo.h"
 #include "sst/core/rankInfo.h"
 #include "sst/core/warnmacros.h"
-#include "sst/core/eli/elementinfo.h"
 
 #include <map>
 
@@ -64,17 +63,15 @@ public:
 
     virtual bool spawnOnAllRanks() { return false; }
     // virtual bool supportsPartialPartitionInput() { return false; }
-
-
 };
 
-}
-}
+} // namespace Partition
+} // namespace SST
 
 #ifndef SST_ELI_REGISTER_PARTITIONER
-#define SST_ELI_REGISTER_PARTITIONER(cls,lib,name,version,desc) \
+#define SST_ELI_REGISTER_PARTITIONER(cls, lib, name, version, desc) \
     SST_ELI_REGISTER_DERIVED(SST::Partition::SSTPartitioner,cls,lib,name,ELI_FORWARD_AS_ONE(version),desc)
 
 #endif
 
-#endif
+#endif // SST_CORE_SSTPART_H

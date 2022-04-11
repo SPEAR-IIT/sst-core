@@ -1,8 +1,8 @@
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
@@ -11,14 +11,15 @@
 #ifndef SST_CORE_IMPL_PARTITONERS_RROBIN_H
 #define SST_CORE_IMPL_PARTITONERS_RROBIN_H
 
-#include "sst/core/sstpart.h"
 #include "sst/core/eli/elementinfo.h"
+#include "sst/core/sstpart.h"
 
 namespace SST {
 namespace IMPL {
 namespace Partition {
 
-class SSTRoundRobinPartition : public SST::Partition::SSTPartitioner {
+class SSTRoundRobinPartition : public SST::Partition::SSTPartitioner
+{
 
 public:
     SST_ELI_REGISTER_PARTITIONER(
@@ -26,7 +27,8 @@ public:
         "sst",
         "roundrobin",
         SST_ELI_ELEMENT_VERSION(1,0,0),
-        "Partitions components using a simple round robin scheme based on ComponentID.  Sequential IDs will be placed on different ranks.")
+        "Partitions components using a simple round robin scheme based on ComponentID.  "
+        "Sequential IDs will be placed on different ranks.")
 
 private:
     RankInfo world_size;
@@ -38,19 +40,13 @@ public:
        Performs a partition of an SST simulation configuration
        \param graph The simulation configuration to partition
     */
-      void performPartition(PartitionGraph* graph) override;
-
-    void performPartition(ConfigGraph* graph) override {
-            SST::Partition::SSTPartitioner::performPartition(graph);
-        }
+    void performPartition(PartitionGraph* graph) override;
 
     bool requiresConfigGraph() override { return false; }
     bool spawnOnAllRanks() override { return false; }
-
-
 };
 
 } // namespace Partition
 } // namespace IMPL
-} //namespace SST
-#endif //SST_CORE_IMPL_PARTITONERS_RROBIN_H
+} // namespace SST
+#endif // SST_CORE_IMPL_PARTITONERS_RROBIN_H

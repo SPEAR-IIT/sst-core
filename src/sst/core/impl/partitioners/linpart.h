@@ -1,20 +1,19 @@
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
 // information, see the LICENSE file in the top level directory of the
 // distribution.
 
-
 #ifndef SST_CORE_IMPL_PARTITONERS_LINPART_H
 #define SST_CORE_IMPL_PARTITONERS_LINPART_H
 
-#include "sst/core/sstpart.h"
 #include "sst/core/eli/elementinfo.h"
+#include "sst/core/sstpart.h"
 
 namespace SST {
 
@@ -34,7 +33,8 @@ Python configuration. It is also very fast to compute a linear partition scheme.
 more aggressive partition schemes users should try either a simple or Zoltan-based
 partitioner.
 */
-class SSTLinearPartition : public SST::Partition::SSTPartitioner {
+class SSTLinearPartition : public SST::Partition::SSTPartitioner
+{
 
 public:
     SST_ELI_REGISTER_PARTITIONER(
@@ -42,13 +42,14 @@ public:
         "sst",
         "linear",
         SST_ELI_ELEMENT_VERSION(1,0,0),
-        "Partitions components by dividing Component ID space into roughly equal portions.  Components with sequential IDs will be placed close together.")
+        "Partitions components by dividing Component ID space into roughly equal portions.  "
+        "Components with sequential IDs will be placed close together.")
 
 protected:
     /** Number of ranks in the simulation */
     RankInfo rankcount;
     /** Output object to print partitioning information */
-    Output* partOutput;
+    Output*  partOutput;
 
 public:
     /**
@@ -64,17 +65,12 @@ public:
     */
     void performPartition(PartitionGraph* graph) override;
 
-    void performPartition(ConfigGraph* graph) override {
-        SST::Partition::SSTPartitioner::performPartition(graph);
-    }
-
     bool requiresConfigGraph() override { return false; }
     bool spawnOnAllRanks() override { return false; }
-
 };
 
-}
-}
-}
+} // namespace Partition
+} // namespace IMPL
+} // namespace SST
 
 #endif

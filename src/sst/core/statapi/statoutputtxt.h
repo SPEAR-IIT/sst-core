@@ -1,19 +1,18 @@
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
 // information, see the LICENSE file in the top level directory of the
 // distribution.
 
-#ifndef _H_SST_CORE_STATISTICS_OUTPUTTXT
-#define _H_SST_CORE_STATISTICS_OUTPUTTXT
+#ifndef SST_CORE_STATAPI_STATOUTPUTTXT_H
+#define SST_CORE_STATAPI_STATOUTPUTTXT_H
 
 #include "sst/core/sst_types.h"
-
 #include "sst/core/statapi/statoutput.h"
 
 #ifdef HAVE_LIBZ
@@ -31,7 +30,7 @@ namespace Statistics {
 class StatisticOutputTxt : public StatisticFieldsOutput
 {
 public:
-  SST_ELI_REGISTER_DERIVED(
+    SST_ELI_REGISTER_DERIVED(
       StatisticOutput,
       StatisticOutputTxt,
       "sst",
@@ -93,29 +92,28 @@ protected:
     void outputField(fieldHandle_t fieldHandle, double data) override;
 
 protected:
-    StatisticOutputTxt() {;} // For serialization
+    StatisticOutputTxt() { ; } // For serialization
 
 private:
     bool openFile();
     void closeFile();
-    int print(const char* fmt, ...);
+    int  print(const char* fmt, ...);
 
 private:
 #ifdef HAVE_LIBZ
-    gzFile                   m_gzFile;
+    gzFile m_gzFile;
 #endif
-    FILE*                    m_hFile;
-    std::string              m_outputBuffer;
-    std::string              m_FilePath;
-    bool                     m_outputTopHeader;
-    bool                     m_outputInlineHeader;
-    bool                     m_outputSimTime;
-    bool                     m_outputRank;
-    bool                     m_useCompression;
-
+    FILE*       m_hFile;
+    std::string m_outputBuffer;
+    std::string m_FilePath;
+    bool        m_outputTopHeader;
+    bool        m_outputInlineHeader;
+    bool        m_outputSimTime;
+    bool        m_outputRank;
+    bool        m_useCompression;
 };
 
-} //namespace Statistics
-} //namespace SST
+} // namespace Statistics
+} // namespace SST
 
-#endif
+#endif // SST_CORE_STATAPI_STATOUTPUTTXT_H

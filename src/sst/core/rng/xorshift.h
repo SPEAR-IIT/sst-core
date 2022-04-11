@@ -1,8 +1,8 @@
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
@@ -11,6 +11,8 @@
 
 #ifndef SST_CORE_RNG_XORSHIFT_H
 #define SST_CORE_RNG_XORSHIFT_H
+
+#include "rng.h"
 
 #include <stdint.h>
 #include <sys/time.h>
@@ -32,26 +34,27 @@ namespace RNG {
     lightweight and inexpensive RNG.
 
 */
-class XORShiftRNG : public SSTRandom {
+class XORShiftRNG : public SST::RNG::Random
+{
 
-    public:
+public:
     /**
         Create a new Mersenne RNG with a specified seed
         @param[in] seed The seed for this RNG
     */
-        XORShiftRNG(unsigned int seed);
+    XORShiftRNG(unsigned int seed);
 
     /**
         Creates a new Mersenne using a random seed which is obtained from the system
         clock. Note this will give different results on different platforms and between
         runs.
     */
-        XORShiftRNG();
+    XORShiftRNG();
 
     /**
         Generates the next random number as a double value between 0 and 1.
     */
-    double   nextUniform() override;
+    double nextUniform() override;
 
     /**
         Generates the next random number as an unsigned 32-bit integer
@@ -66,12 +69,12 @@ class XORShiftRNG : public SSTRandom {
     /**
         Generates the next random number as a signed 64-bit integer
     */
-    int64_t  generateNextInt64() override;
+    int64_t generateNextInt64() override;
 
     /**
         Generates the next random number as a signed 32-bit integer
     */
-    int32_t  generateNextInt32() override;
+    int32_t generateNextInt32() override;
 
     /**
         Seed the XOR RNG
@@ -88,10 +91,9 @@ protected:
     uint32_t y;
     uint32_t z;
     uint32_t w;
-
 };
 
-} //namespace RNG
-} //namespace SST
+} // namespace RNG
+} // namespace SST
 
-#endif //SST_CORE_RNG_XORSHIFT_H
+#endif // SST_CORE_RNG_XORSHIFT_H

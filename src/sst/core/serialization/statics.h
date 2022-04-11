@@ -1,8 +1,8 @@
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
@@ -18,34 +18,32 @@ namespace SST {
 namespace Core {
 namespace Serialization {
 
-class statics {
- public:
-  typedef void (*clear_fxn)(void);
+class statics
+{
+public:
+    typedef void (*clear_fxn)(void);
 
-  static void
-  register_finish(clear_fxn fxn);
+    static void register_finish(clear_fxn fxn);
 
-  static void
-  finish();
+    static void finish();
 
- protected:
-  static std::list<clear_fxn>* fxns_;
-
+protected:
+    static std::list<clear_fxn>* fxns_;
 };
 
 template <class T>
-class need_delete_statics {
- public:
-  need_delete_statics(){
-    statics::register_finish(&T::delete_statics);
-  }
+class need_delete_statics
+{
+public:
+    need_delete_statics() { statics::register_finish(&T::delete_statics); }
 };
 
 #define free_static_ptr(x) \
- if (x) delete x; x = 0
+    if ( x ) delete x;     \
+    x = 0
 
-}
-}
-}
+} // namespace Serialization
+} // namespace Core
+} // namespace SST
 
-#endif // STATICS_H
+#endif // SST_CORE_SERIALIZATION_STATICS_H

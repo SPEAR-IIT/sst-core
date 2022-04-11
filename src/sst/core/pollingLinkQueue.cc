@@ -1,14 +1,13 @@
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
 // information, see the LICENSE file in the top level directory of the
 // distribution.
-
 
 #include "sst_config.h"
 
@@ -16,45 +15,50 @@
 
 namespace SST {
 
-    PollingLinkQueue::PollingLinkQueue() : ActivityQueue() {}
-    PollingLinkQueue::~PollingLinkQueue() {
+PollingLinkQueue::PollingLinkQueue() : ActivityQueue() {}
+PollingLinkQueue::~PollingLinkQueue()
+{
     // Need to delete any events left in the queue
-    std::multiset<Activity*,Activity::less_time>::iterator it;
+    std::multiset<Activity*, Activity::less_time>::iterator it;
     for ( it = data.begin(); it != data.end(); ++it ) {
         delete *it;
     }
     data.clear();
-    }
+}
 
-    bool PollingLinkQueue::empty()
-    {
+bool
+PollingLinkQueue::empty()
+{
     return data.empty();
-    }
+}
 
-    int PollingLinkQueue::size()
-    {
+int
+PollingLinkQueue::size()
+{
     return data.size();
-    }
+}
 
-    void PollingLinkQueue::insert(Activity* activity)
-    {
+void
+PollingLinkQueue::insert(Activity* activity)
+{
     data.insert(activity);
-    }
+}
 
-    Activity* PollingLinkQueue::pop()
-    {
+Activity*
+PollingLinkQueue::pop()
+{
     if ( data.size() == 0 ) return nullptr;
-    std::multiset<Activity*,Activity::less_time>::iterator it = data.begin();
-    Activity* ret_val = (*it);
+    std::multiset<Activity*, Activity::less_time>::iterator it      = data.begin();
+    Activity*                                               ret_val = (*it);
     data.erase(it);
     return ret_val;
-    }
+}
 
-    Activity* PollingLinkQueue::front()
-    {
+Activity*
+PollingLinkQueue::front()
+{
     if ( data.size() == 0 ) return nullptr;
     return *data.begin();
-    }
-
+}
 
 } // namespace SST

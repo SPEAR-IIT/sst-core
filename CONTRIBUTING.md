@@ -5,9 +5,11 @@
 * SST-Core is the repository for the Sandia developed SST Simulation Core.  The repository is hosted on [GitHub](https://github.com).
    * An understanding of [git scm](https://git-scm.com/) is essential to developing code for SST.
    * There are 2 primary branches used for SST development
-      * **devel** - Contains the latest offical codeset of SST-Core.  **This branch is unstable and may be broken at any time.**
-      * **master** - Contains the latest fully tested stable version of SST-Core.
+      * **devel** - Contains the latest development codeset of SST-Core.
+         * **While this branch is fairly stable, unexpected events can cause it to be broken at any time.**
+      * **master** - Contains the latest fully tested stable version of SST-Core that is under development.
 
+* Backwards compatibility for changes to existing SST-Core features should be maintained for one major release cycle. During this time, deprecation notices should be provided via compile, runtime warning, and/or release notes.
 * Repository to SST-Core is located [here](https://github.com/sstsimulator/sst-core).
 * Questions can be sent to wg-sst@sandia.gov
 
@@ -17,11 +19,11 @@
 
 * **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/sstsimulator/sst-core/issues).
 
-* If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/sstsimulator/sst-core/issues/new). Be sure to include: 
-   * A **title and clear description** 
+* If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/sstsimulator/sst-core/issues/new). Be sure to include:
+   * A **title and clear description**
    * As much relevant information as possible
    * A **code sample** or an **executable test case** demonstrating the unexpected behavior.
-   
+
 ---
 
 #### **Forked Development**
@@ -41,7 +43,7 @@ my fork of that repo is here:
 The way to create your own fork is to click the fork button in the upper right while you are at the official repo. Once you have done that you can simply clone
 
 ```
-git clone https://github.com/fryeguy52/sst-core
+git clone git@github.com:fryeguy52/sst-core.git
 ```
 
 ##### Getting updates from the official repo to your local clone
@@ -50,7 +52,7 @@ Your fork will not automatically get updates from the official repo but you will
 
 ```
 git checkout devel
-git remote add sst-official https://github.com/sstsimulator/sst-core
+git remote add sst-official git@github.com:sstsimulator/sst-core.git
 git pull --all
 git branch devel --set-upstream-to sst-official/devel
 ```
@@ -58,10 +60,10 @@ You can verify that things are setup correctly
 
 ```
 git remote -vv
-origin       https://github.com/fryeguy52/sst-core (fetch)
-origin       https://github.com/fryeguy52/sst-core (push)
-sst-official https://github.com/sstsimulator/sst-core.git (fetch)
-sst-official https://github.com/sstsimulator/sst-core.git (push)
+origin       git@github.com:fryeguy52/sst-core.git (fetch)
+origin       git@github.com:fryeguy52/sst-core.git (push)
+sst-official git@github.com:sstsimulator/sst-core.git (fetch)
+sst-official git@github.com:sstsimulator/sst-core.git (push)
 
 git branch -vv
   devel  be1b790 [sst-official/devel: ahead 82, behind 61] Merge pull request #496 from sstsimulator/devel
@@ -113,7 +115,7 @@ git fetch --all --prune
 
 #### **Patches to existing code to fix an issue**
 
-* Create a `issue-fix` branch on your forked repo derived from the **sst-core/devel** branch  
+* Create a `issue-fix` branch on your forked repo derived from the **sst-core/devel** branch
 * Make all required changes to correct the issue. All the changes must be commited to the `issue-fix` branch.
 * Open a new GitHub pull request from the `issue-fix` branch to the **sst-core/devel** branch.
    * **CRITICAL: ENSURE THAT PULL REQUEST IS TARGETED TO THE `sst-core/devel` BRANCH.**
@@ -126,7 +128,7 @@ git fetch --all --prune
 
 #### **New Feature**
 
-* Create a `new-feature` branch on your forked repo derived from the **sst-core/devel** branch  
+* Create a `new-feature` branch on your forked repo derived from the **sst-core/devel** branch
 * Make all required changes to implement the new feature(s). All the changes must be commited to the `new-feature` branch.
 * Open a new GitHub pull request from the `new-feature` branch to the **sst-core/devel** branch.
    * **CRITICAL: ENSURE THAT PULL REQUEST IS TARGETED TO THE `sst-core/devel` BRANCH.**
@@ -139,7 +141,7 @@ git fetch --all --prune
 
 #### **SST AutoTester (CI Testing)**
 
-* When a Pull Request is created against the **sst-core/devel** branch, the SST AutoTester application will automatically run (usually within 30 minutes) and will build and test the source branch of the Pull Request.  
+* When a Pull Request is created against the **sst-core/devel** branch, the SST AutoTester application will automatically run (usually within 30 minutes) and will build and test the source branch of the Pull Request.
    * Testing is performed across a number of different platforms
    * If the test suites pass, then the Pull Request will be setup for manual merging by SST-Core staff.
    * The testing is not all inclusive, it is possible for a bug related to a specific platform to slip in.  See Nightly Testing below.

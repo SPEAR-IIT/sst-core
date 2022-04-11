@@ -1,14 +1,13 @@
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
 // information, see the LICENSE file in the top level directory of the
 // distribution.
-
 
 #include "sst_config.h"
 
@@ -16,45 +15,49 @@
 
 namespace SST {
 
-    InitQueue::InitQueue() : ActivityQueue() {}
-    InitQueue::~InitQueue() {
+InitQueue::InitQueue() : ActivityQueue() {}
+InitQueue::~InitQueue()
+{
     // Need to delete any events left in the queue
     int size = data.size();
     for ( int i = 0; i < size; ++i ) {
         delete data.front();
         data.pop_front();
     }
-    }
+}
 
-    bool InitQueue::empty()
-    {
+bool
+InitQueue::empty()
+{
     return data.empty();
-    }
+}
 
-    int InitQueue::size()
-    {
+int
+InitQueue::size()
+{
     return data.size();
-    }
+}
 
-    void InitQueue::insert(Activity* activity)
-    {
+void
+InitQueue::insert(Activity* activity)
+{
     data.push_back(activity);
-    }
+}
 
-    Activity* InitQueue::pop()
-    {
+Activity*
+InitQueue::pop()
+{
     if ( data.size() == 0 ) return nullptr;
     Activity* ret_val = data.front();
     data.pop_front();
     return ret_val;
-    }
+}
 
-    Activity* InitQueue::front()
-    {
+Activity*
+InitQueue::front()
+{
     if ( data.size() == 0 ) return nullptr;
     return data.front();
-    }
-
+}
 
 } // namespace SST
-

@@ -1,8 +1,8 @@
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
@@ -10,11 +10,12 @@
 // distribution.
 
 #include "sst_config.h"
+
 #include "sst/core/component.h"
 
 #include "sst/core/exit.h"
-#include "sst/core/simulation.h"
 #include "sst/core/factory.h"
+#include "sst/core/simulation_impl.h"
 
 using namespace SST::Statistics;
 
@@ -29,10 +30,7 @@ Component::Component(ComponentId_t id) : BaseComponent(id)
     // currentlyLoadingSubComponent = my_info;
 }
 
-
-Component::~Component()
-{
-}
+Component::~Component() {}
 
 void
 Component::registerAsPrimaryComponent()
@@ -44,17 +42,14 @@ void
 Component::primaryComponentDoNotEndSim()
 {
     int thread = getSimulation()->getRank().thread;
-    getSimulation()->getExit()->refInc( getId(), thread );
+    Simulation_impl::getSimulation()->getExit()->refInc(getId(), thread);
 }
 
 void
 Component::primaryComponentOKToEndSim()
 {
     int thread = getSimulation()->getRank().thread;
-    getSimulation()->getExit()->refDec( getId(), thread );
+    Simulation_impl::getSimulation()->getExit()->refDec(getId(), thread);
 }
 
-
 } // namespace SST
-
-

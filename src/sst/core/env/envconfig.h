@@ -1,25 +1,25 @@
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
 // information, see the LICENSE file in the top level directory of the
 // distribution.
 
-#ifndef _H_SST_CORE_ENV_CONFIG_H
-#define _H_SST_CORE_ENV_CONFIG_H
+#ifndef SST_CORE_ENV_ENVCONFIG_H
+#define SST_CORE_ENV_ENVCONFIG_H
 
-#include <string>
-#include <map>
-#include <set>
-#include <vector>
-#include <iostream>
+#include <climits>
 #include <cstdio>
 #include <cstdlib>
-#include <climits>
+#include <iostream>
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
 
 namespace SST {
 namespace Core {
@@ -58,23 +58,22 @@ SST releases.
 
 */
 
-class EnvironmentConfigGroup {
+class EnvironmentConfigGroup
+{
 
 public:
     EnvironmentConfigGroup(const std::string& name) : groupName(name) {}
-    std::string getName() const;
+    std::string           getName() const;
     std::set<std::string> getKeys() const;
-    std::string getValue(const std::string& key);
-    void setValue(const std::string& key, const std::string& value);
-    void print();
-    void writeTo(FILE* outFile);
+    std::string           getValue(const std::string& key);
+    void                  setValue(const std::string& key, const std::string& value);
+    void                  print();
+    void                  writeTo(FILE* outFile);
 
 protected:
-    std::string groupName;
+    std::string                        groupName;
     std::map<std::string, std::string> params;
-
 };
-
 
 /***
 \class EnvironmentConfiguration envconfig.h "sst/core/env/envconfig.h"
@@ -104,27 +103,27 @@ should use the public methods provided to ensure future compatibility
 with SST releases.
 
 */
-class EnvironmentConfiguration {
+class EnvironmentConfiguration
+{
 
 public:
     EnvironmentConfiguration();
     ~EnvironmentConfiguration();
 
     EnvironmentConfigGroup* createGroup(const std::string& groupName);
-    void removeGroup(const std::string& groupName);
-    std::set<std::string> getGroupNames();
+    void                    removeGroup(const std::string& groupName);
+    std::set<std::string>   getGroupNames();
     EnvironmentConfigGroup* getGroupByName(const std::string& groupName);
-    void print();
-    void writeTo(const std::string& filePath);
-    void writeTo(FILE* outFile);
+    void                    print();
+    void                    writeTo(const std::string& filePath);
+    void                    writeTo(FILE* outFile);
 
 private:
     std::map<std::string, EnvironmentConfigGroup*> groups;
-
 };
 
-}
-}
-}
+} // namespace Environment
+} // namespace Core
+} // namespace SST
 
-#endif
+#endif // SST_CORE_ENV_ENVCONFIG_H

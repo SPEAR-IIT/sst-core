@@ -1,48 +1,48 @@
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
 // information, see the LICENSE file in the top level directory of the
 // distribution.
 
-
-#ifndef _H_SST_CORE_RNG_DISTRIB
-#define _H_SST_CORE_RNG_DISTRIB
-
+#ifndef SST_CORE_RNG_DISTRIB_H
+#define SST_CORE_RNG_DISTRIB_H
 
 namespace SST {
 namespace RNG {
 
 /**
- * \class SSTRandomDistribution
+ * \class RandomDistribution
  * Base class of statistical distributions in SST.
  */
-class SSTRandomDistribution {
+class RandomDistribution
+{
 
-    public:
-        /**
-            Obtains the next double from the distribution
-            \return The next double in the distribution being sampled
-        */
-        virtual double getNextDouble() = 0;
+public:
+    /**
+        Obtains the next double from the distribution
+        \return The next double in the distribution being sampled
+    */
+    virtual double getNextDouble() = 0;
 
-        /**
-            Destroys the distribution
-        */
-        virtual ~SSTRandomDistribution() {};
+    /**
+        Destroys the distribution
+    */
+    virtual ~RandomDistribution() {};
 
-        /**
-            Creates the base (abstract) class of a distribution
-        */
-        SSTRandomDistribution() {};
-
+    /**
+        Creates the base (abstract) class of a distribution
+    */
+    RandomDistribution() {};
 };
 
-}
-}
+using SSTRandomDistribution = SST::RNG::RandomDistribution;
 
-#endif
+} // namespace RNG
+} // namespace SST
+
+#endif // SST_CORE_RNG_DISTRIB_H

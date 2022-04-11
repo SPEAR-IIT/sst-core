@@ -1,8 +1,8 @@
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
@@ -10,27 +10,25 @@
 // distribution.
 
 #include "sst_config.h"
+
 #include "sst/core/bootshared.h"
 
-int main(int argc, char* argv[]) {
+int
+main(int argc, char* argv[])
+{
     int config_env = 1;
-    int verbose = 0;
+    int verbose    = 0;
 
-    for(int i = 0; i < argc; ++i) {
-        if(strcmp("--no-env-config", argv[i]) == 0) {
-            config_env = 0;
-        } else if(strcmp("--verbose", argv[i]) == 0) {
+    for ( int i = 0; i < argc; ++i ) {
+        if ( strcmp("--no-env-config", argv[i]) == 0 ) { config_env = 0; }
+        else if ( strcmp("--verbose", argv[i]) == 0 ) {
             verbose = 1;
         }
     }
 
-    if(verbose && config_env) {
-        printf("Launching SST with automatic environment processing enabled...\n");
-    }
+    if ( verbose && config_env ) { printf("Launching SST with automatic environment processing enabled...\n"); }
 
-    if(config_env) {
-        boot_sst_configure_env(verbose, argv, argc);
-    }
+    if ( config_env ) { boot_sst_configure_env(verbose, argv, argc); }
 
     boot_sst_executable("sstinfo.x", verbose, argv, argc);
 }

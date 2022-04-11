@@ -1,8 +1,8 @@
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
@@ -12,32 +12,31 @@
 #ifndef SST_CORE_POLLINGLINKQUEUE_H
 #define SST_CORE_POLLINGLINKQUEUE_H
 
-#include <set>
-
 #include "sst/core/activityQueue.h"
+
+#include <set>
 
 namespace SST {
 
 /**
  * A link queue which is used for polling only.
  */
-class PollingLinkQueue : public ActivityQueue {
+class PollingLinkQueue : public ActivityQueue
+{
 public:
     PollingLinkQueue();
     ~PollingLinkQueue();
 
-    bool empty() override;
-    int size() override;
-    void insert(Activity* activity) override;
+    bool      empty() override;
+    int       size() override;
+    void      insert(Activity* activity) override;
     Activity* pop() override;
     Activity* front() override;
 
-
 private:
-    std::multiset<Activity*,Activity::less_time> data;
-
+    std::multiset<Activity*, Activity::less_time> data;
 };
 
-} //namespace SST
+} // namespace SST
 
 #endif // SST_CORE_POLLINGLINKQUEUE_H

@@ -1,8 +1,8 @@
-// Copyright 2009-2020 NTESS. Under the terms
+// Copyright 2009-2021 NTESS. Under the terms
 // of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
-// Copyright (c) 2009-2020, NTESS
+// Copyright (c) 2009-2021, NTESS
 // All rights reserved.
 //
 // This file is part of the SST software package. For license
@@ -21,28 +21,25 @@ std::list<statics::clear_fxn>* statics::fxns_ = nullptr;
 void
 statics::register_finish(clear_fxn fxn)
 {
-  if (fxns_ == nullptr){
-    fxns_ = new std::list<statics::clear_fxn>;
-  }
-  fxns_->push_back(fxn);
+    if ( fxns_ == nullptr ) { fxns_ = new std::list<statics::clear_fxn>; }
+    fxns_->push_back(fxn);
 }
 
 void
 statics::finish()
 {
-  if (fxns_ == nullptr)
-    return;
+    if ( fxns_ == nullptr ) return;
 
-  std::list<clear_fxn>::iterator it, end = fxns_->end();
-  for (it=fxns_->begin(); it != end; ++it){
-    clear_fxn fxn = *it;
-    fxn();
-  }
-  fxns_->clear();
-  delete fxns_;
-  fxns_ = nullptr;
+    std::list<clear_fxn>::iterator it, end = fxns_->end();
+    for ( it = fxns_->begin(); it != end; ++it ) {
+        clear_fxn fxn = *it;
+        fxn();
+    }
+    fxns_->clear();
+    delete fxns_;
+    fxns_ = nullptr;
 }
 
-}
-}
-}
+} // namespace Serialization
+} // namespace Core
+} // namespace SST

@@ -13,12 +13,12 @@ AM_INIT_AUTOMAKE([1.9.6 foreign dist-bzip2 subdir-objects no-define tar-pax])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 m4_pattern_allow([LT_LIBEXT])
 
-AC_CONFIG_HEADER([src/sst/core/sst_config.h])
+AC_CONFIG_HEADERS([src/sst/core/sst_config.h])
 
 # Lets check for the standard compilers and basic options
 AC_PROG_CC
 AM_PROG_CC_C_O
-AC_PROG_CC_C99
+m4_if(m4_defn([AC_AUTOCONF_VERSION]), 2.71,, m4_defn([AC_AUTOCONF_VERSION]), 2.70,, [AC_PROG_CC_C99]) 
 AC_C_INLINE
 AC_PROG_MAKE_SET
 
@@ -29,28 +29,8 @@ AC_PROG_CPP
 AC_CANONICAL_HOST
 
 AC_CACHE_SAVE
-AC_HEADER_TIME
 
-LT_CONFIG_LTDL_DIR([src/sst/core/libltdl])
 LT_INIT([shared disable-static dlopen])
-LTDL_INIT([recursive])
-
-if test "x$with_included_ltdl" != "xyes"; then
-   save_CFLAGS="$CFLAGS"
-   save_LDFLAGS="$LDFLAGS"
-   save_LIBS="$LIBS"
-   CFLAGS="$CFLAGS $LTDLINCL"
-   LDFLAGS="$LDFLAGS $LIBLTDL"
-   AC_CHECK_LIB([ltdl], [lt_dladvise_init],
-                 [],
-                 [AC_MSG_ERROR([installed libltdl is too old])])
-   LIBS="$save_LIBS"
-   LDFLAGS="$save_LDFLAGS"
-   CFLAGS="$save_CFLAGS"
-fi
-
-AC_SUBST([LTDLINCL])
-AC_SUBST([LIBLTDL])
 
 dnl Work out the C++ standard which we are going to use
 AX_CXX_COMPILE_STDCXX_1Y
@@ -70,7 +50,6 @@ CXXFLAGS="$CXXFLAGS $WARNFLAGS"
 dnl Fix flags - seems to be only way to make libltdl play nice
 CPPFLAGS='-I$(top_builddir) -I$(top_srcdir)/src -I$(top_builddir)/src'" $CPPFLAGS"
 
-AC_HEADER_TIME
 AC_CHECK_HEADERS([c_asm.h dlfcn.h intrinsics.h mach/mach_time.h sys/time.h sys/stat.h sys/types.h unistd.h])
 
 AC_CACHE_SAVE
@@ -79,12 +58,14 @@ AC_CHECK_PROG([DOXYGEN], [doxygen], [doxygen])
 AM_CONDITIONAL([HAVE_DOXYGEN], [test "$DOXYGEN" = "doxygen"])
 
 SST_CHECK_PREVIEW_BUILD()
+SST_ENABLE_TESTFRAMEWORK_DEV()
 
 SST_CHECK_OSX()
 SST_CHECK_MPI([], [AC_MSG_ERROR([Could not find MPI package])])
 
 SST_CHECK_PYTHON([], [AC_MSG_ERROR([Could not find Python, this is required for SST to build])])
 SST_CHECK_LIBZ([have_zlib="yes"],[have_zlib="no"],[AC_MSG_ERROR([zlib was requested but could not be found.])])
+SST_CHECK_BACKTRACE()
 SST_CHECK_HDF5()
 SST_CHECK_MEM_POOL()
 
@@ -179,7 +160,6 @@ AC_CONFIG_FILES([
   src/sst/Makefile
   src/sst/SST-${PACKAGE_VERSION}.pc:src/sst/sst.pc.in
   src/sst/core/Makefile
-  src/sst/core/libltdl/Makefile
   src/sst/core/build_info.h:src/sst/core/build_info.h.in
 ])
 AC_OUTPUT
@@ -195,7 +175,7 @@ if test "x$SSTCORE_GIT_HEADSHA" != "x$PACKAGE_VERSION"; then
 printf "%38s : %s\n" "Git Branch" "$SSTCORE_GIT_BRANCH"
 printf "%38s : %s\n" "Git HEAD SHA" "$SSTCORE_GIT_HEADSHA"
 printf "%38s : %s\n" "Branch Commit Count" "$SSTCORE_GIT_COMMITCOUNT"
-else 
+else
 printf "%38s : %s\n" "Version" "SST-Core $PACKAGE_VERSION"
 fi
 printf "%38s : %s\n" "Prefix" "$prefix"
@@ -224,7 +204,6 @@ echo ""
 
 printf "%38s : %s (%s)\n" "Found Python" "$PYTHON_EXE" "$PYTHON_VERSION"
 printf "%38s : %s\n" "Python3" "$PYTHON_VERSION3"
-
 if test "x$sst_check_zoltan_happy" = "xyes" ; then
     printf "%38s : YES\n" "Zoltan Partitioner"
 else
@@ -241,5 +220,9 @@ else
     printf "%38s : No\n" "libz compression library"
 fi
 
-echo "-------------------------------------------------------" 
+if test "x$PYTHON_VERSION3" = "xno"; then
+    printf "DEPRECATION NOTICE: Use of Python 2 is deprecated in favor of Python 3.5 or greater. Support for Python 2 may be removed in SST 12 or later.\n"
+fi
+
+echo "-------------------------------------------------------"
 
