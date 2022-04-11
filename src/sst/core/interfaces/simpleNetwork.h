@@ -60,6 +60,11 @@ public:
         bool   tail;           /*!< True if this is the tail of a steram */
         bool   allow_adaptive; /*!< Indicates whether adaptive routing is allowed or not. */
 
+        //yao
+        int    num_hops;       /* number of link hops message go through */
+        bool   adp_routed;     /* this msg is routed adaptively ? */
+        int    special_index;   /* intend to use this as a index to show when to save q-table to a file. Only used by dragonfly topology, trafficGen EP for now*/
+        
     private:
         Event* payload; /*!< Payload of the request */
 
@@ -103,28 +108,37 @@ public:
 
         /** Constructor */
         Request() :
-            dest(0),
-            src(0),
-            size_in_bits(0),
-            head(false),
-            tail(false),
+            dest(0), 
+            src(0), 
+            size_in_bits(0), 
+            head(false), 
+            tail(false), 
             allow_adaptive(true),
-            payload(nullptr),
-            trace(NONE),
-            traceID(0)
+            payload(nullptr), 
+            trace(NONE), 
+            traceID(0), 
+            //yao 
+            num_hops(0), 
+            adp_routed(false)
         {}
 
         Request(nid_t dest, nid_t src, size_t size_in_bits, bool head, bool tail, Event* payload = nullptr) :
-            dest(dest),
-            src(src),
-            size_in_bits(size_in_bits),
-            head(head),
-            tail(tail),
+            dest(dest), 
+            src(src), 
+            size_in_bits(size_in_bits), 
+            head(head), 
+            tail(tail), 
             allow_adaptive(true),
-            payload(payload),
-            trace(NONE),
-            traceID(0)
-        {}
+            payload(payload), 
+            trace(NONE), 
+            traceID(0),
+            //yao
+            num_hops(0), 
+            adp_routed(false), 
+            special_index(0)
+
+        {
+        }
 
         virtual ~Request()
         {
@@ -157,6 +171,11 @@ public:
             ser& trace;
             ser& traceID;
             ser& allow_adaptive;
+
+            //yao
+            ser & num_hops;
+            ser & adp_routed;
+            ser & special_index;
         }
 
     protected:
